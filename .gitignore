@@ -1,21 +1,79 @@
+# Gradle
+# ------
 .gradle
-**/build/
-!src/**/build/
+/build
 
-# Ignore Gradle GUI config
-gradle-app.setting
+# IDEA
+# ----
+.idea
+.idea/
+.shelf
+/*.iml
+/*.ipr
+/*.iws
+/out
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+/out/*.*
 
-# Avoid ignore Gradle wrappper properties
-!gradle-wrapper.properties
 
-# Cache of project
-.gradletasknamecache
+# Eclipse
+# -------
+*.classpath
+*.project
+*.settings
 
-# Eclipse Gradle plugin generated files
+/bin
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
 # Eclipse Core
 .project
+
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# STS (Spring Tool Suite)
+.springBeans
+
+# Code Recommenders
+.recommenders/
+
+# Logs
+# ----
+/*.log
+
+# Others
+# ----
+**/*.class
+**/*.bin
+**/*.build
+**/*.out
+build
+build/
+**/*.jar
+
+# Maven specific
+
+target/
+
+#Skip all SVN related
+.svn/
+.svn/entries
+.svn*
+*/.svn/*
+
+#Skip all CVS related
+CVS/
+/CVS/*
+**/CVS/*
+.cvsignore
+*/.cvsignore
