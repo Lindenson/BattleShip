@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+		http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+
+    <action-state id="start">
+        <set name="flowScope.createOrNot" value="0" type="integer"/>
+        <transition on="success" to="restart"/>
+    </action-state>
+
+    <decision-state id="restart">
+        <on-entry>
+            <evaluate expression="allGames.ifPlaying(currentUser.name)" result="flowScope.alreadyPlaying"/>
+            <evaluate expression="gamerBuss.informWeFree()"/>
+        </on-entry>
+
+        <if test="flowScope.alreadyPlaying"
+            then="startGame"
+        />
+
+        <if test="flowScope.createOrNot==0"
+            then="loadData"
+            else="startGame"
+        />
+    </decision-state>
+
+    <action-state id="loadData">
+        <evaluate expression="allGames.createGamerByName(currentUser.name)"/>
+        <evaluate expression="externalContext.nativeRequest.session.setAttribute('USER_GAMER_NAME', currentUser.name)"/>
+        <transition on="success" to="startGame"/>
+    </action-state>
+
+    <view-state id="startGame">
+        <on-entry>
+            <set name="flowScope.createOrNot" value="1" type="integer"/>
+        </on-entry>
+        <transition on="restartGame" to="restart" />
+        <transition on="toExit" to="exit" />
+    </view-state>
+
+    <action-state id="exit">
+        <evaluate expression="allGames.removeByName(currentUser.name)"/>
+        <transition on="success" to="stop"/>
+    </action-state>
+
+    <end-state id="stop" view="externalRedirect:/home">
+        <on-entry>
+            <set name="flowScope.myRequest" value="externalContext.nativeRequest.getRequestURL()"/>
+            <set name="flowScope.myPort" value="new java.net.URL(flowScope.myRequest.toString()).getPort()"/>
+            <evaluate expression="loggedNames.expireAndKillUserSessions(currentUser.name, flowScope.myPort)"/>
+        </on-entry>
+    </end-state>
+
+</flow>
+
