@@ -89,7 +89,7 @@ public class AllGames {
             GamerSet gamerSet = listOfGamer.get(key);
             if (gamerSet.playWith.equals(name)) {
                 gamerSet.resetMe();
-                messaging.convertAndSend("/topic/" + key, "esceped&Выш соперник неожиданнo вышел из игры!");
+                messaging.convertAndSend("/topic/" + key, "esceped&Ваш соперник сбежал!");
             }
 
         }

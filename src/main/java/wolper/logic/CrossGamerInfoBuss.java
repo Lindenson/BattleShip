@@ -73,7 +73,7 @@ public class CrossGamerInfoBuss {
         }
         final GamerSet partner2 = allGames.getGamerByName(partner1.playWith);
         if (partner2==null) {
-            messaging.convertAndSend("/topic/"+name, "esceped&Ваш соперник неожиданнo вышел из игры!");
+            messaging.convertAndSend("/topic/"+name, "esceped&Ваш соперник сбежал!");
             return;
         }
         messaging.convertAndSend("/topic/"+partner1.playWith, "setUp&Cоперник уже расставил фигуры!");

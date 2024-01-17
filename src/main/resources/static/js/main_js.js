@@ -17,7 +17,7 @@ function detectmob() {
     } else {
         return false;
     }
-};
+}
 
 
 //Определяем браузер
