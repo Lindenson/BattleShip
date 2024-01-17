@@ -33,7 +33,7 @@ public class GamerDAO {
             results = template.queryForList(ifQuery, namedParameters, String.class);
         }
         catch (DataAccessException e) {
-            throw new LogicEception("Ошибка чтения БД", e.getMessage());
+            throw new LogicException("Ошибка чтения БД", e.getMessage());
         }
         return !results.isEmpty();
     }
@@ -61,7 +61,7 @@ public class GamerDAO {
             template.update(ifQuery1, parameterSource1, holder);
         }
         catch (DataAccessException e) {
-            throw new LogicEception("Ошибка сохраниения пользователя в БД", e.getMessage());
+            throw new LogicException("Ошибка сохраниения пользователя в БД", e.getMessage());
         }
         
         Map<String, Object> parameters2 = new HashMap<>();
@@ -73,7 +73,7 @@ public class GamerDAO {
             template.update(ifQuery2, parameterSource2);
         }
         catch (DataAccessException e) {
-            throw new LogicEception("Ошибка сохраниения пользователя в БД", e.getMessage());
+            throw new LogicException("Ошибка сохраниения пользователя в БД", e.getMessage());
         }
     }
 
@@ -88,7 +88,7 @@ public class GamerDAO {
             template.update(ifQuery, parameterSource);
         }
         catch (DataAccessException e) {
-            throw new LogicEception("Ошибка сохраниения пользователя в БД", e.getMessage());
+            throw new LogicException("Ошибка сохраниения пользователя в БД", e.getMessage());
         }
     }
 
@@ -101,7 +101,7 @@ public class GamerDAO {
             result = template.queryForObject(ifQuery, parameters, Integer.class);
         }
         catch (DataAccessException e) {
-            throw new LogicEception("Ошибка сохраниения пользователя в БД", e.getMessage());
+            throw new LogicException("Ошибка сохраниения пользователя в БД", e.getMessage());
         }
         return result;
     }

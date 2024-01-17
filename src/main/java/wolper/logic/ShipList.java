@@ -7,24 +7,21 @@ import java.util.List;
 
 
 public class ShipList {
-    public final List<SmallSip> smallSipList = new ArrayList();
+    public final List<SmallSip> smallSipList = new ArrayList<>();
 }
 
 
 class SmallSip {
     public EnumSet<Checks> checkSet = EnumSet.noneOf(Checks.class);
-    private static Checks [] checks = Checks.values();
-
+    private static final Checks [] checks = Checks.values();
 
     //Поля статуса читаються многоми, но пишуться одним потоком
     public volatile int size;
     public volatile int killedPart=0;
 
-
     public EnumSet<Checks> getCheckSet() {
         return checkSet;
     }
-
 
     public void setSize(int size) {
         this.size=size;
@@ -43,7 +40,6 @@ class SmallSip {
     public boolean chechKillifNot() {
         return ++killedPart==size;
     }
-
 }
 
 

@@ -117,8 +117,8 @@ public class HomeController {
 //Обработка исключений с выводом сообщений в виде веб-страниц
 @ControllerAdvice
 class GlobalControllerExceptionHandler {
-    @ExceptionHandler(LogicEception.class)
-    public ModelAndView gameExceptions(LogicEception ex) {
+    @ExceptionHandler(LogicException.class)
+    public ModelAndView gameExceptions(LogicException ex) {
         ModelAndView modelAndView = new ModelAndView("exception");
         modelAndView.addObject("errCode", ex.getErrCode());
         modelAndView.addObject("errMsg", ex.getErrMsg());

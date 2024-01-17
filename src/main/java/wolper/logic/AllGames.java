@@ -1,7 +1,6 @@
 package wolper.logic;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -19,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 public class AllGames {
 
     //Это основная игровая информация, доступная для всех игроков и, следовательно,  многих потоков
-    private static final ConcurrentMap<String, GamerSet> listOfGamer = new ConcurrentHashMap<String, GamerSet>();
-    private static final ConcurrentMap<String, ShipList> listOfShips = new ConcurrentHashMap<String, ShipList>();
+    private static final ConcurrentMap<String, GamerSet> listOfGamer = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, ShipList> listOfShips = new ConcurrentHashMap<>();
     public String name;
 
 
@@ -62,6 +61,7 @@ public class AllGames {
         try {
             TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedException ie) {
+            // игнорируем
         } finally {
             messaging.convertAndSend("/topic/renewList", "newCreated");
         }

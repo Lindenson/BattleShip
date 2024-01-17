@@ -1,7 +1,7 @@
 package wolper.logic;
 
 import jakarta.validation.constraints.Pattern;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 
 

@@ -15,16 +15,14 @@
     background-color: cadetblue;
     margin: 0;
     padding: 0;
-    border: double;
-    border-color: black;
+    border: double black;
 }
 
 .appoints {
     background-color: green;
     margin: 0;
     padding: 0;
-    border: double;
-    border-color: black;
+    border: double black;
 }
 
 table {

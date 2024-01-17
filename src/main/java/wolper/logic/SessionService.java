@@ -34,7 +34,7 @@ public class SessionService {
 
 
     public List<SessionInformation> getActiveSessions() {
-        List<SessionInformation> activeSessions = new ArrayList();
+        List<SessionInformation> activeSessions = new ArrayList<>();
         for(Object principal : sessionRegistry.getAllPrincipals()) {
             activeSessions.addAll(sessionRegistry.getAllSessions(principal, false));
         }
@@ -44,11 +44,10 @@ public class SessionService {
 
     public List<String> getLoggedUsersNames() {
         List<SessionInformation> session = getActiveSessions();
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (SessionInformation sessionInformation : session) {
             Object principalObj = sessionInformation.getPrincipal();
-            if (principalObj instanceof User) {
-                User user = (User) principalObj;
+            if (principalObj instanceof User user) {
                 result.add(user.getUsername());
             }
         }
@@ -89,10 +88,12 @@ public class SessionService {
             for (String id : idList) {
                 HttpHeaders requestHeaders = new HttpHeaders();
                 requestHeaders.add("Cookie", "JSESSIONID=" + id);
-                HttpEntity requestEntity = new HttpEntity(null, requestHeaders);
+                HttpEntity<Object> requestEntity = new HttpEntity<>(null, requestHeaders);
                 RestTemplate rt = new RestTemplate();
                 rt.exchange("http://localhost:"+port, HttpMethod.GET, requestEntity, String.class);
             }
-        } catch (Exception ex) {} //недопустим никаких исключений
+        } catch (Exception ex) {
+            //не допустим никаких исключений
+        }
     }
 }

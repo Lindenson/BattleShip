@@ -1,13 +1,6 @@
 package wolper.logic;
 
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class BoardOfShips {
     public volatile Ships[][] shipLines = new Ships[10][10];
 
