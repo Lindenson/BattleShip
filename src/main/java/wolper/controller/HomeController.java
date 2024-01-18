@@ -11,7 +11,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import wolper.dao.GamerDAO;
+import wolper.domain.Gamer;
+import wolper.domain.LogicException;
 import wolper.logic.*;
+import wolper.security.SessionService;
 
 @Slf4j
 @Controller

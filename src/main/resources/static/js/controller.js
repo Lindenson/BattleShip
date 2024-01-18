@@ -274,8 +274,14 @@ function initMamaSTOMP() {
     //Подписались на обмен сообщениями по приглашению
     let handleInviitations = function (incoming) {
         incoming.ack();
-        if (strStartsWith(incoming.body,myName()+"&invitedNew")) {inviteShowDialog(incoming.body)}
-        if (strStartsWith(incoming.body,myName()+"&invitedFail")) alertMy('Приглашение не состоялось (отвергнуто)!', function () {});
+        if (strStartsWith(incoming.body,myName()+"&invitedNew")) {
+            inviteShowDialog(incoming.body);
+            return;
+        }
+        if (strStartsWith(incoming.body,myName()+"&invitedFail")) {
+            alertMy('Приглашение не состоялось (отвергнуто)!', function () {});
+            return;
+        }
         if (strStartsWith(incoming.body,myName()+"&invitedDone")) {
             yourPartner=incoming.body.split("&")[2];
             alertMy("Приглашение принято игроком " + yourPartner, function () {});

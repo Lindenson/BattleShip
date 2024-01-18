@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import wolper.logic.SecurityErrorHandler;
+import wolper.security.SecurityErrorHandler;
 import javax.sql.DataSource;
 
 
@@ -44,7 +44,7 @@ public class SecurityConfiguration {
                         .failureHandler(new SecurityErrorHandler())
                 )
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/", "/home", "/login", "/register", "/js/**", "/plugins/**",
+                        .requestMatchers("/", "/home", "/login", "/register", "success", "js/**", "/plugins/**",
                                 "/webjars/**", "/double_reg_final/**", "/double_reg/**",
                                 "/regerror", "/errors")
                         .permitAll()

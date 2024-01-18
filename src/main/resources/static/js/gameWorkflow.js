@@ -197,14 +197,16 @@ function showKillMe(x, y) {
         if (!check) gotofinish=false;
     }
 }
-
-
+var iCalled = 0;
 
 function alertMy(text, callback) {
+
     $("#forContentInfo").text(text);
     $("#modalInfoButton").on('click', function () {
         $('#modalDialogInfo').modal('hide');
         $("#modalInfoButton").unbind( "click" );
+        $('body').removeClass('modal-open');
+        $('.modal-backdrop').remove();
         callback();
     });
     $('#modalDialogInfo').modal();

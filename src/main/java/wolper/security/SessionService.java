@@ -1,7 +1,7 @@
-package wolper.logic;
+package wolper.security;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.HttpEntity;
@@ -21,17 +21,11 @@ import java.util.Set;
 
 
 @Service("loggedNames")
+@RequiredArgsConstructor
 @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SessionService {
 
-    private SessionRegistry sessionRegistry;
-
-    @Autowired
-    public void setSessionRegistry(SessionRegistry sessionRegistry) {
-        this.sessionRegistry = sessionRegistry;
-    }
-
-
+    private final SessionRegistry sessionRegistry;
 
     public List<SessionInformation> getActiveSessions() {
         List<SessionInformation> activeSessions = new ArrayList<>();
@@ -40,7 +34,6 @@ public class SessionService {
         }
         return activeSessions;
     }
-
 
     public List<String> getLoggedUsersNames() {
         List<SessionInformation> session = getActiveSessions();

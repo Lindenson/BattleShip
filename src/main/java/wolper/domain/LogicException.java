@@ -1,4 +1,4 @@
-package wolper.logic;
+package wolper.domain;
 
 public class LogicException extends RuntimeException {
 

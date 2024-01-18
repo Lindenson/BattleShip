@@ -1,4 +1,4 @@
-package wolper.logic;
+package wolper.security;
 
 
 import jakarta.servlet.ServletException;
@@ -12,9 +12,12 @@ import java.io.IOException;
 
 public class SecurityErrorHandler extends SimpleUrlAuthenticationFailureHandler {
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+                                        AuthenticationException exception) throws IOException, ServletException
+    {
         if (exception.getClass().isAssignableFrom(SessionAuthenticationException.class)) {
-            request.getRequestDispatcher("/double_reg/" + request.getParameterValues("username")[0]).forward(request, response);
+            request.getRequestDispatcher("/double_reg/" +
+                    request.getParameterValues("username")[0]).forward(request, response);
         }
         else if (exception.getClass().isAssignableFrom(BadCredentialsException.class)) {
             request.getRequestDispatcher("/errors").forward(request, response);}
