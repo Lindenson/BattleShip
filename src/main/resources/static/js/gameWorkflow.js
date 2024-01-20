@@ -193,22 +193,24 @@ function showKillMe(x, y) {
         $('#'+cellObject.toId()).removeClass('injured');
         $('#'+cellObject.toId()).addClass('killed');
         if (--cellObject.y<1) gotofinish=false;
-        var check=$('#'+cellObject.toId()).hasClass('injured');
+        let check=$('#'+cellObject.toId()).hasClass('injured');
         if (!check) gotofinish=false;
     }
 }
-var iCalled = 0;
 
+
+//универсальный диалог сообщений
 function alertMy(text, callback) {
-
     $("#forContentInfo").text(text);
     $("#modalInfoButton").on('click', function () {
-        $('#modalDialogInfo').modal('hide');
         $("#modalInfoButton").unbind( "click" );
-        $('body').removeClass('modal-open');
-        $('.modal-backdrop').remove();
         callback();
+        alertDialog.hide();
     });
-    $('#modalDialogInfo').modal();
+    alertDialog.show();
 }
 
+
+//диалоги
+let alertDialog = new bootstrap.Modal(document.getElementById('modalDialogInfo'));
+let inviteDialog = new bootstrap.Modal(document.getElementById('modalDialogInvite'));

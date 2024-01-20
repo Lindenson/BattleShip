@@ -350,23 +350,24 @@ function drowMamaTable() {
                                 "targets": 1
                             }]
                     });
+                    //Устанавливаем обработчики нажатия ее строк (кроме заголовка)
+                    $('#allGamersTable tbody').on('click', 'tr', function() {
+                        let row = allGamersTable.row($(this)).data();
+                        let nameHis=row[0];
+                        let free=row[2];
+                        //Сам себе не отправляем приглашение
+                        if (nameHis===myName()) return;
+                        if(nameHis==="Имя") return;
+                        if (free!=='true') return;
+                        //Отправляем приглашение
+                        alertMy("Отправляем приглашение "+$(this).children(':first').text(), function () {
+                            initSTOMP.resultLink.send("/app/infoExchange", {"persistent":"true"}, "invite&" + myName() + "&" + nameHis);
+                        });
+                    });
+                    //и открываемся
                     $("#allGamersTable").css("visibility", "visible");
                 }
                     allGamersTable.clear().rows.add(start_date).draw();
-
-                //Устанавливаем обработчики нажатия ее строк (кроме заголовка)
-                $("#allGamersTable").find("tr").on('click', function() {
-                    let nameHis=$(this).children(':first').text();
-                    let free=$(this).children(':nth-child(3)').text();
-                    //Сам себе не отправляем приглашение
-                    if (nameHis==myName()) return;
-                    if(nameHis=="Имя") return;
-                    if (free!=="Нет") return;
-                    //Отправляем приглашение
-                    alertMy("Отправляем приглашение "+$(this).children(':first').text(), function () {
-                        initSTOMP.resultLink.send("/app/infoExchange", {"persistent":"true"}, "invite&" + myName() + "&" + nameHis);
-                    });
-                });
             }
 }
 
@@ -385,6 +386,7 @@ function inviteShowDialog(inviter) {
         $('#modalDialogInvite').find("#acceptInviteButton").on('click', function() {
 
             //Отправляем акцепт приглашения
+            unbindAndCloseInviteDialog();
             let toSend="accepted&"+ names[2]+"&"+myName();
             yourPartner=names[2];
             sendAJAXget("/rest/invitationAccepted/"+toSend, function (x) {},
@@ -394,11 +396,12 @@ function inviteShowDialog(inviter) {
         $('#modalDialogInvite').find("#rejectInviteButton").on('click', function() {
 
             //Отправляем режект приглашения
+            unbindAndCloseInviteDialog();
             let toSend="rejected&"+ names[2]+"&"+myName();
             sendAJAXget("/rest/invitationAccepted/"+toSend, function (x) {},
                 function () {invited=false;}, ajaxErrorMessage);
         });
-        $('#modalDialogInvite').modal();
+        inviteDialog.show();
 
     } else {
         //Если уже кем то приглашены - отправляем режект приглашения (можно усложнить алгоритм... потом)
@@ -408,7 +411,11 @@ function inviteShowDialog(inviter) {
     }
 }
 
-
+function unbindAndCloseInviteDialog(){
+    $('#modalDialogInvite').find("#acceptInviteButton").unbind('click');
+    $('#modalDialogInvite').find("#rejectInviteButton").unbind('click');
+    inviteDialog.hide();
+}
 
 
 

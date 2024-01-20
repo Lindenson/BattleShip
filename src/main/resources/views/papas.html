@@ -6,9 +6,8 @@
 
 <div th:fragment="papasStep">
         <div class="container-fluid">
-            <div class="row">
-
-                <div style="float: left; position: relative; margin-right: 2%">
+            <div class="clearfix">
+                <div class="float-start pb-5">
                     <div class="todrag">
                     <table id="maintable">
                         <tr>
@@ -159,10 +158,9 @@
                 </div>
 
 
-                <div style="float: left; position: relative; margin-left: 40px">
+                <div class="float-start px-5">
                         <div>
-                            <div class="spaser1 hidden-md hidden-lg hidden-sm"></div>
-                            <p style="font-family: sans-serif; font-size: 130%; padding-left: 10px">Бери и двигай </p>
+                            <p class="instruct">Пират, бери и двигай корабли:</p>
                         </div>
                         <div class="shipsy">
                             <div class="spaser2"></div>
@@ -278,16 +276,15 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
 
-            <div class="row" style="margin-top: 30px; clear: both">
-
+            <div class="row">
+                <div class="mx-4 mt-3">
                 <!  - Выход из программы     >
-                <a th:attr="onclick=|goNextStep('toExit')|"  class="btn btn-primary" style="margin-left:40px; margin-bottom: 20px" role="button">Выход</a>
-                <button id="gofuther" onclick="sendJSONtoServer()" style="margin-left:40px; margin-bottom: 20px; visibility: hidden" class="btn btn-primary" type="button">Вперед</button>
-
+                    <a th:attr="onclick=|goNextStep('toExit')|"  class="btn btn-primary mr-2" role="button">Выход</a>
+                    <button id="gofuther" onclick="sendJSONtoServer()" style="visibility: hidden" class="btn btn-primary" type="button">Вперед</button>
+                </div>
             </div>
         </div>
 </div>
