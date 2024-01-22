@@ -93,9 +93,9 @@ public class AllGames {
                 .map(GamerSet::getPlayWith)
                 .map(listOfGamer::get)
                 .ifPresent(partner -> {
-                    GamerSet resetGamer = partner.toBuilder().free(true).playWith("").invitedBy("").killed(0).build();
-                    updateGamer(resetGamer);
-                    messaging.convertAndSend("/topic/" + partner, "esceped&Ваш соперник сбежал!");
+                    GamerSet resetPartner = partner.toBuilder().free(true).playWith("").invitedBy("").killed(0).build();
+                    updateGamer(resetPartner);
+                    messaging.convertAndSend("/topic/" + partner.getName(), "esceped&Ваш соперник сбежал!");
                 });
     }
 

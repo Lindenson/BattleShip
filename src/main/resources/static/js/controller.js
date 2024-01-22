@@ -248,22 +248,20 @@ function initMamaSTOMP() {
     //Подписка на все темы
     initSTOMP.callback=function(frame) {
         let linkSource=initSTOMP.resultLink;
-        STOMPsubscription= linkSource.subscribe("/topic/renewList", handleListofUsers, {'ack': 'client', 'durable': 'true'});
-        linkSource.subscribe("/topic/invite", handleInviitations, {'ack': 'client', 'durable': 'true'});
-        linkSource.subscribe("/topic/"+myName(), handleInfoExchange, {'ack': 'client', 'durable': 'true'});
-        //И первая иницаилизация стартовой таблицы
-        drowMamaTable();
-        $("body").css('cursor','default');
-        $("#clockWait").remove();
+            STOMPsubscription= linkSource.subscribe("/topic/renewList", handleListofUsers, {'ack': 'client', 'durable': 'true'});
+            linkSource.subscribe("/topic/invite", handleInviitations, {'ack': 'client', 'durable': 'true'});
+            linkSource.subscribe("/topic/"+myName(), handleInfoExchange, {'ack': 'client', 'durable': 'true'});
+            //И первая иницаилизация стартовой таблицы
+            drowMamaTable();
+            $("body").css('cursor','default');
+            $("#clockWait").remove();
         };
 
     $("#clockWait").css('visibility', "visible");
     $("body").css('cursor','wait !important; z-index: 999; height: 100%; width: 100%;');
 
 
-
      initSTOMP('http://'+window.location.host + ':80/data', '/');
-
 
     //Подписались на обмен сообщениями по добавлению и уходу игроков
     let handleListofUsers = function (incoming) {
