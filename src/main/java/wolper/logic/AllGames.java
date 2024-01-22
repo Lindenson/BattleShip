@@ -37,7 +37,7 @@ public class AllGames {
         listOfGamer.put(name, mintFreshGamer(name, rating));
         //Даем время вновьприбывшему подключиться к Вебсокету
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(5000);
         } catch (InterruptedException ie) {
             // игнорируем
         } finally {
@@ -80,22 +80,23 @@ public class AllGames {
     }
 
     private void deleteGamerByName(String name) {
-        final GamerSet deleted = listOfGamer.remove(name);
-        //не допускаем уделения игрока дважде, что может произойти, если игрок пытался открыть несколько сессий (система выбивает такого дублера)
-        if (deleted == null) return;
-        gamerDAO.setRatingOnExit(name, deleted.getRating());
-        listOfShips.remove(name);
-        messaging.convertAndSend("/topic/renewList", "reMoved");
+        Optional.ofNullable(listOfGamer.remove(name))
+                .ifPresent(player -> {
+                    gamerDAO.setRatingOnExit(name, player.getRating());
+                    listOfShips.remove(name);
+                    messaging.convertAndSend("/topic/renewList", "reMoved");
+                });
     }
 
     private void informPartnerOnGoOut(String name) {
-        String partnerName = listOfGamer.get(name).getPlayWith();
-        GamerSet partnerGamer = listOfGamer.get(partnerName);
-        if (Objects.nonNull(partnerGamer)) {
-            GamerSet resetGamer = partnerGamer.toBuilder().free(true).playWith("").invitedBy("").killed(0).build();
-            updateGamer(resetGamer);
-            messaging.convertAndSend("/topic/" + partnerName, "esceped&Ваш соперник сбежал!");
-        }
+        Optional.ofNullable(listOfGamer.get(name))
+                .map(GamerSet::getPlayWith)
+                .map(listOfGamer::get)
+                .ifPresent(partner -> {
+                    GamerSet resetGamer = partner.toBuilder().free(true).playWith("").invitedBy("").killed(0).build();
+                    updateGamer(resetGamer);
+                    messaging.convertAndSend("/topic/" + partner, "esceped&Ваш соперник сбежал!");
+                });
     }
 
 }

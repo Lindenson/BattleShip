@@ -27,7 +27,7 @@ public class FebFlowConfiguration extends AbstractFlowConfiguration {
     @Bean
     public FlowDefinitionRegistry flowRegistry() {
         return getFlowDefinitionRegistryBuilder()
-                .addFlowLocation("classpath:/flows/mainflow.xml")
+                .addFlowLocation("classpath:/flows/game.xml")
                 .setFlowBuilderServices(flowBuilderServices())
                 .build();
     }

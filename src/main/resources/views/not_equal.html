@@ -1,7 +1,6 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
 
 <html xmlns:th="http://www.w3.org/1999/xhtml">
-
 <head>
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -12,16 +11,14 @@
     <title>Error</title>
 </head>
 
-
 <body class="ocean">
 <div class="container mt-5">
-<div class="mt-5 p-5 btn-dark text-white rounded">
-    <h1>Ошибка!</h1>
-    <p>Неправильный логин или пароль</p>
-    <p><a th:href="@{/login}" class="btn btn-primary btn-lg" role="button">Повторить ввод</a></p>
+    <div class="mt-5 p-5 btn-dark text-white rounded">
+        <h1>Ошибка заполнения</h1>
+        <p>Пороли не совпадают</p>
+        <p><a th:href="@{/register}" class="btn btn-primary btn-lg" role="button">Повторить</a></p>
+    </div>
 </div>
-</div>
-
 
 <div>
     <div class="bubble bubble--1"></div>

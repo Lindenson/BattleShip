@@ -16,22 +16,22 @@
         </on-entry>
 
         <if test="flowScope.alreadyPlaying"
-            then="startGame"
+            then="start_game"
         />
 
         <if test="flowScope.createOrNot==0"
             then="loadData"
-            else="startGame"
+            else="start_game"
         />
     </decision-state>
 
     <action-state id="loadData">
         <evaluate expression="allGames.createGamerByName(currentUser.name)"/>
         <evaluate expression="externalContext.nativeRequest.session.setAttribute('USER_GAMER_NAME', currentUser.name)"/>
-        <transition on="success" to="startGame"/>
+        <transition on="success" to="start_game"/>
     </action-state>
 
-    <view-state id="startGame">
+    <view-state id="start_game">
         <on-entry>
             <set name="flowScope.createOrNot" value="1" type="integer"/>
         </on-entry>

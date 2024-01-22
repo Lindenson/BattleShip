@@ -39,7 +39,7 @@ public class SecurityConfiguration {
                 //Все остальное
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/goin")
+                        .defaultSuccessUrl("/game")
                         .failureForwardUrl("/regerror")
                         .failureHandler(new SecurityErrorHandler())
                 )

@@ -7,11 +7,19 @@ var forDivBoxDela= 25;
 var goFuther= 1;
 
 
+//Определяем браузер
+var is_chrome = navigator.userAgent.indexOf('Chrome') > -1;
+var is_explorer = navigator.userAgent.indexOf('MSIE') > -1;
+var is_firefox = navigator.userAgent.indexOf('Firefox') > -1;
+var is_safari = navigator.userAgent.indexOf("Safari") > -1;
+var is_opera = navigator.userAgent.toLowerCase().indexOf("op") > -1;
+if ((is_chrome)&&(is_safari)) {is_safari=false;}
+if ((is_chrome)&&(is_opera)) {is_chrome=false;}
+
 //Узнаем - не мобильный ли у нас
 function detectmob() {
     return window.innerWidth <= 1200 && window.innerHeight <= 800;
 }
-
 
 //И настраиваем под мобильник размеры ячеек и допустимую точность позиционирования
 function change() {

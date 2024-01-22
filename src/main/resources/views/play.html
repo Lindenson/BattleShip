@@ -3,8 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 
-<div th:fragment="dedasStep">
-        <div class="container-fluid">
+<div th:fragment="playStep">
               <div class="clearfix">
                     <div class="float-start">
                         <h4>Вы</h4>
@@ -306,17 +305,15 @@
                                 </tr>
                             </table>
                         </div>
-
                     </div>
-              </div>
-
+                </div>
+                <hr>
                 <div class="row">
                     <div class="mx-2 my-5 py-5">
                     <!  - Выход из программы     >
-                        <a th:attr="onclick=|goNextStep('toExit')|"  class="btn btn-primary" role="button">Выход</a>
+                        <a th:attr="onclick=|goNextStep('toExit')|"  class="btn btn-danger" role="button">Выход</a>
                     </div>
                 </div>
-        </div>
 </div>
 
 </html>

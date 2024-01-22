@@ -71,9 +71,9 @@ public class HomeController {
     }
 
     //Контроллер входа нового игрока
-    @RequestMapping("/goin")
+    @RequestMapping("/game")
     public ModelAndView welcome() {
-        return new ModelAndView("redirect:mainflow");
+        return new ModelAndView("redirect:game");
     }
 
     //Контроллер входа нового игрока после регистрации
@@ -89,7 +89,7 @@ public class HomeController {
     {
         //Валидация формы
         if (result.hasErrors()) return new ModelAndView("register");
-        if (!gamer.getPassword().equals(password2)) return new ModelAndView("notequeal_paswords");
+        if (!gamer.getPassword().equals(password2)) return new ModelAndView("not_equal");
 
         //Проверка совпадения имени игрока
         if (gamerDAO.ifDoubleGamer(gamer.getName())) return new ModelAndView("reg_error");

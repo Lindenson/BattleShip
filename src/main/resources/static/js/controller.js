@@ -71,6 +71,7 @@ function forDrag() {
                         insertDiv(finalxPos, finalyPos, sl, positioN.HOR);
                         //Если разместили все корабли то отображаем кнопку "Вперед"
                         goFuther++;
+                        console.log(goFuther)
                         if (goFuther>10) $('#gofuther').css("visibility", "visible")
                     }
                     else $(this).offset(initOffset);
@@ -253,7 +254,7 @@ function initMamaSTOMP() {
         //И первая иницаилизация стартовой таблицы
         drowMamaTable();
         $("body").css('cursor','default');
-        $("#clockWait").remove();
+        //$("#clockWait").remove();
         };
 
     $("#clockWait").css('visibility', "visible");
@@ -313,23 +314,25 @@ function drowMamaTable() {
 
                     //Используем плаги ДатаТэблс для создания адаптивной таблицы
                     allGamersTable = $("#allGamersTable").DataTable({
-                        "bAutoWidth": false,
-                        "responsive": true,
-                        "paging": false,
-                        "info": false,
-                        "searching": true,
-                        "ordering": false,
-                        "language": {
-                            "search": "Найти:",
-                            "zeroRecords": "Не найдено"
+                        autoWidth: false,
+                        responsive: true,
+                        paging: false,
+                        scrollCollapse: true,
+                        scrollY: '250px',
+                        info: false,
+                        searching: true,
+                        ordering: true,
+                        language: {
+                            search: "Найти:",
+                            zeroRecords: "Не найдено"
                         },
-                        "columns": [
+                        columns: [
                             {"title": 'Кто', "contentPadding": "i", className: "dt-body-left"},
                             {"title": 'С кем', "contentPadding": "i", className: "dt-body-left"},
                             {"title": 'Играет', "contentPadding": "i", className: "dt-body-left"},
                             {"title": 'Рейтинг', "contentPadding": "i", className: "dt-body-left"}
                         ],
-                        "columnDefs": [{
+                        columnDefs: [{
                             "render": function (data, type, row) {
                                 return '<b style="color: navy">' + data + '</b>';
                             },
@@ -440,14 +443,13 @@ function goNextStep(step) {
             if (STOMPsubscription) STOMPsubscription.unsubscribe();
             iPlay=true;
             //Перерисовываем поле игры
-            $('#modalDialogInvite').modal('hide');
             $('#allGamersTable').empty();
             $('#allGamersTable').remove();
             $('#restartGame').empty();
             $('#restartGame').remove();
             initModel();
             forDrag();
-            $('#prepare').css('visibility', 'visible');
+            $('#prepare').css('display', 'inline');
             setPageHeader('Противники готовятся....');
             break;
 
@@ -458,7 +460,7 @@ function goNextStep(step) {
             forDragNot();
             Model.updateViev();
             initFightModel();
-            $('#play').css('visibility', 'visible');
+            $('#play').css('display', 'inline');
             if (partnerSetUp) setPageHeader('Ходит '+yourPartner+'....');
             else {setPageHeader(yourPartner+' расставляет! Ждем....'); yourStep=true;}
             break;

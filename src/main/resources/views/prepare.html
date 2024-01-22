@@ -4,8 +4,7 @@
       xmlns:th="http://www.thymeleaf.org">
 
 
-<div th:fragment="papasStep">
-        <div class="container-fluid">
+<div th:fragment="prepareStep">
             <div class="clearfix">
                 <div class="float-start pb-5">
                     <div class="todrag">
@@ -277,17 +276,13 @@
                     </div>
                 </div>
             </div>
-
-
+            <hr>
             <div class="row">
                 <div class="mx-4 mt-3">
                 <!  - Выход из программы     >
-                    <a th:attr="onclick=|goNextStep('toExit')|"  class="btn btn-primary mr-2" role="button">Выход</a>
-                    <button id="gofuther" onclick="sendJSONtoServer()" style="visibility: hidden" class="btn btn-primary" type="button">Вперед</button>
+                    <a th:attr="onclick=|goNextStep('toExit')|"  class="btn btn-danger mr-2" role="button">Выход</a>
+                    <button id="gofuther" onclick="sendJSONtoServer()" style="visibility: hidden" class="btn btn-success" type="button">Вперед</button>
                 </div>
             </div>
-        </div>
 </div>
-
-
 </html>
