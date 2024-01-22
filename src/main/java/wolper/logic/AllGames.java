@@ -37,7 +37,7 @@ public class AllGames {
         listOfGamer.put(name, mintFreshGamer(name, rating));
         //Даем время вновьприбывшему подключиться к Вебсокету
         try {
-            TimeUnit.SECONDS.sleep(5000);
+            TimeUnit.SECONDS.sleep(1000);
         } catch (InterruptedException ie) {
             // игнорируем
         } finally {

@@ -254,7 +254,7 @@ function initMamaSTOMP() {
         //И первая иницаилизация стартовой таблицы
         drowMamaTable();
         $("body").css('cursor','default');
-        //$("#clockWait").remove();
+        $("#clockWait").remove();
         };
 
     $("#clockWait").css('visibility', "visible");
