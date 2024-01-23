@@ -43,7 +43,8 @@ function sendMyNextStep(cell){
                     showKill(cellObject.x, cellObject.y);
                     yourStep=false;
                     setPageHeader('Вы победили!');
-                    alertMy("Поздравляем Вас с победой!", function () {goNextStep("restartGame");});
+                    alertMy("Поздравляем Вас с победой!", function () {});
+                    goNextStep("restartGame");
                     break;
                 default :
                     yourStep=true;
@@ -88,7 +89,8 @@ function hitMe(x, y, result) {
             $('#'+cellObject.toId()).addClass('killed');
             yourStep=false;
             setPageHeader('Вы проиграли!');
-            alertMy("Вы проиграли! Удачи в следующей игре...", function () {goNextStep("restartGame");});
+            alertMy("Вы проиграли! Удачи в следующей игре...", function () {});
+            goNextStep("restartGame");
             break;
     }
 }
@@ -200,9 +202,13 @@ function showKillMe(x, y) {
 
 
 //универсальный диалог сообщений
-let alertMy = function (text, callback) {
-    let alertDialog = new bootstrap.Modal(document.getElementById('modalDialogInfo'));
+let alertMy = function (text, callback, alter) {
+    let alertDialog = new bootstrap.Modal('#modalDialogInfo', {
+        backdrop: 'static',
+        keyboard: false
+    });
     alertDialog.hide()
+    if (alter) $('#escape').css('display', 'none');
     $("#forContentInfo").text(text);
     $("#modalInfoButton").on('click', function () {
         $("#modalInfoButton").unbind( "click" );
@@ -210,10 +216,14 @@ let alertMy = function (text, callback) {
         inviteDialog.hide();
         callback();
         $('#modalDialogInfo').modal('hide');
+        $('#escape').css('display', 'inline');
     });
     alertDialog.show();
 }
-let inviteDialog = new bootstrap.Modal(document.getElementById('modalDialogInvite'));
+let inviteDialog = new bootstrap.Modal('#modalDialogInvite', {
+    backdrop: 'static',
+    keyboard: false
+});
 
 
 

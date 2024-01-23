@@ -13,19 +13,29 @@ function getMainTableHeight() {
     return $(".todrag").height();
 }
 
-//Данные для интерактивной таблицы на материнской странице
-let gameStartData;
-let allGamersTable;
-let tableFirst=true;
-let STOMPsubscription;
+//таблица игроков
+let gamersList;
+let gamersListTable;
+let tableInit=true;
+let STOMP_subscription;
+
+//машина состояний
 let partnerSetUp=false;
 let yourStep=false;
 let yourPartner="";
 let invitedBy="";
 let agreedTo="";
+let iPlay=false;
+
+//для визуализации
 let ifDragged=false;
 let savedPos;
-let iPlay=false;
+
+//таймаут
+const invitationTimeOut = 15000;
+var invitationCallback;
+
+
 
 //Обработчик драг энд дроп для расстановки собственных судов
 function forDrag() {
@@ -223,11 +233,6 @@ function insertDiv(myX, myY, widTH, myPos) {
 
 
 
-
-
-
-
-
 //АЯКАСЫ И СОКЕТЫ ДЛЯ РАБОТЫ ПРОГРАММЫ
 
 //СТОМП клиент для получения и отправки
@@ -249,7 +254,7 @@ function initMamaSTOMP() {
     //Подписка на все темы
     initSTOMP.callback=function(frame) {
         let linkSource=initSTOMP.resultLink;
-            STOMPsubscription= linkSource.subscribe("/topic/renewList", handleListOfUsers, {'ack': 'client', 'durable': 'true'});
+            STOMP_subscription= linkSource.subscribe("/topic/renewList", handleListOfUsers, {'ack': 'client', 'durable': 'true'});
             linkSource.subscribe("/topic/invite", handleInvitations, {'ack': 'client', 'durable': 'true'});
             linkSource.subscribe("/topic/"+myName(), handleInfoExchange, {'ack': 'client', 'durable': 'true'});
             //И первая иницаилизация стартовой таблицы
@@ -286,13 +291,12 @@ function initMamaSTOMP() {
         }
         if (strStartsWith(incoming.body,myName()+"&invitedDone")) {
             yourPartner=incoming.body.split("&")[2];
-            alertMy("Приглашение принято игроком " + yourPartner, function () {
-                goNextStep("prepare");
-            });
+            alertMy("Приглашение принято игроком " + yourPartner, function () {});
+            goNextStep("prepare");
             return;
         }
         if (strFinishesWith(incoming.body,"invitedDone&"+myName())) {
-            yourPartner=incoming.body.split("&")[0]; //toDO таймаут!
+            yourPartner=incoming.body.split("&")[0];
             goNextStep("prepare");
             return;
         }
@@ -314,9 +318,9 @@ function initMamaSTOMP() {
 function drawMamaTable() {
 
             let callback=function(newRowsOfData) {
-                gameStartData=new Array();
+                gamersList=new Array();
                 for (let i=0; i<newRowsOfData.length; i++)
-                    gameStartData[i]=[newRowsOfData[i].name.toString(), newRowsOfData[i].playWith.toString(),
+                    gamersList[i]=[newRowsOfData[i].name.toString(), newRowsOfData[i].playWith.toString(),
                         newRowsOfData[i].free.toString(), newRowsOfData[i].rating.toString()];
                 setDataForTable();
             };
@@ -324,11 +328,11 @@ function drawMamaTable() {
             sendAJAXget("/rest/gamerInfo", callback, function () {}, function () {});
 
             function setDataForTable() {
-                if (tableFirst) {
-                    tableFirst = false;
+                if (tableInit) {
+                    tableInit = false;
 
                     //Используем плаги ДатаТэблс для создания адаптивной таблицы
-                    allGamersTable = $("#allGamersTable").DataTable({
+                    gamersListTable = $("#allGamersTable").DataTable({
                         autoWidth: false,
                         responsive: true,
                         paging: false,
@@ -370,7 +374,7 @@ function drawMamaTable() {
                     });
                     //Устанавливаем обработчики нажатия ее строк (кроме заголовка)
                     $('#allGamersTable tbody').on('click', 'tr', function() {
-                        let row = allGamersTable.row($(this)).data();
+                        let row = gamersListTable.row($(this)).data();
                         let nameHis=row[0];
                         let free=row[2];
                         //Сам себе не отправляем приглашение
@@ -385,7 +389,7 @@ function drawMamaTable() {
                     //и открываемся
                     $("#allGamersTable").css("visibility", "visible");
                 }
-                    allGamersTable.clear().rows.add(gameStartData).draw();
+                    gamersListTable.clear().rows.add(gamersList).draw();
             }
 }
 
@@ -394,13 +398,17 @@ function drawMamaTable() {
 
 
 //Выдача диалога при поступлении сообщения о приглашении игрока
+
 function inviteShowDialog(inviter) {
     let names=inviter.split("&");
     let newInviter=names[2];
     //Проверяем не приглашены ли уже (повторно приглашаться допустимо)
     if(invitedBy==='' || invitedBy===newInviter) {
 
+        //ставим таймаут
         invitedBy=newInviter;
+        clearTimeout(invitationCallback);
+        invitationCallback = clearInviteAfterTimeout();
 
         $('#modalDialogInvite').find("#modalName").text("Приглашает игрок "+names[2]);
         $('#modalDialogInvite').find("#acceptInviteButton").on('click', function() {
@@ -434,6 +442,7 @@ function inviteShowDialog(inviter) {
 
 function unbindAndCloseInviteDialog(){
     invitedBy='';
+    clearTimeout(invitationCallback);
     $('#modalDialogInvite').find("#acceptInviteButton").unbind('click');
     $('#modalDialogInvite').find("#rejectInviteButton").unbind('click');
     inviteDialog.hide();
@@ -459,7 +468,7 @@ function goNextStep(step) {
 
         case "prepare":
             //Отписываемся от подписки и начинам игру
-            if (STOMPsubscription) STOMPsubscription.unsubscribe();
+            if (STOMP_subscription) STOMP_subscription.unsubscribe();
             iPlay=true;
             //Перерисовываем поле игры
             $('#allGamersTable').empty();
@@ -500,10 +509,10 @@ let handleInfoExchange = function (incoming) {
     let context=incoming.body.split("&");
     switch (context[0]) {
         case "error":
-            alertMy ("Ошибка на сервере! Перегрузитесь", function () {});
+            alertMy ("Ошибка на сервере! Перегрузитесь", function () {}, true);
             break;
         case "escaped":
-            alertMy (context[1], function () { goNextStep("restartGame") });
+            alertMy (context[1], function () {goNextStep("restartGame");}, true);
             break;
         case "setUp":
             if (yourStep) setPageHeader('Ходите Вы....');
@@ -556,3 +565,15 @@ function preventMultiEntrance() {
 }
 
 
+function clearInviteAfterTimeout() {
+    return setTimeout(() => {
+        if (!iPlay && invitedBy!=='') {
+            let toSend = "rejected&" + invitedBy + "&" + myName();
+            sendAJAXget("/rest/invitationAccepted/" + toSend, function (x) {
+                },
+                function () {
+                }, ajaxErrorMessage);
+            unbindAndCloseInviteDialog();
+        }
+    }, invitationTimeOut);
+}
