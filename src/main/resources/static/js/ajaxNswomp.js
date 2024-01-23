@@ -2,7 +2,7 @@
 //ВСЕ ДЛЯ СВОМПА
 
 //Число попыток реконнекта
-var tries=0;
+let tries=0;
 
 function initSTOMP(urlToGo, urlOnExpire) {
 
@@ -40,17 +40,14 @@ function initSTOMP(urlToGo, urlOnExpire) {
     //Коннект и реконнект с настройкой опций
     function reconnect() {
         //Исходные позиции
-        var token = $("meta[name='_csrf']").attr("content");
-        var header = $("meta[name='_csrf_header']").attr("content");
-        var headers = {};
+        let token = $("meta[name='_csrf']").attr("content");
+        let header = $("meta[name='_csrf_header']").attr("content");
+        let headers = {};
         headers[header] = token;
         initSTOMP.ws = new SockJS(initSTOMP.url);
         initSTOMP.resultLink =  Stomp.over(initSTOMP.ws);
         initSTOMP.resultLink.heartbeat.incoming = 40000;
         initSTOMP.resultLink.heartbeat.outgoing = 40000;
-       //Для RabbiMQ
-       // initSTOMP.resultLink.heartbeat.incoming = 0;
-       // initSTOMP.resultLink.heartbeat.outgoing = 0;
         if ((tries++)>0)  {console.log('!!!STOMP CLOSED!!!'); window.location = urlOnExpire;}
         else initSTOMP.resultLink.connect(headers, initSTOMP.callback, stompError);
     }
@@ -114,8 +111,8 @@ function  sendAJAXpost (URLserver, toSend, callback1, callback2, callback3) {
 
 //Настройка безопасности для Аякс
 function initAJAXforSpring() {
-    var token = $("meta[name='_csrf']").attr("content");
-    var header = $("meta[name='_csrf_header']").attr("content");
+    let token = $("meta[name='_csrf']").attr("content");
+    let header = $("meta[name='_csrf_header']").attr("content");
     $(document).ajaxSend(function(e, xhr, options) {
         xhr.setRequestHeader(header, token);
     });
@@ -124,8 +121,8 @@ function initAJAXforSpring() {
 
 
 //Заготовочка для обработки ошибок
-var ajaxErrorMessage = function (jqXHR, textStatus, errorThrown) {
-    alert( "Игровые данные не получены с сервера: ошибка интренета или истек таймаут Вашей сессии");
+const ajaxErrorMessage = function (jqXHR, textStatus, errorThrown) {
+    alert("Игровые данные не получены с сервера: ошибка интренета или истек таймаут Вашей сессии");
 };
 
 

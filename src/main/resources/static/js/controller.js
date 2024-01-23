@@ -14,14 +14,15 @@ function getMainTableHeight() {
 }
 
 //Данные для интерактивной таблицы на материнской странице
-let start_date;
+let gameStartData;
 let allGamersTable;
 let tableFirst=true;
 let STOMPsubscription;
 let partnerSetUp=false;
 let yourStep=false;
 let yourPartner="";
-let invited=false;
+let invitedBy="";
+let agreedTo="";
 let ifDragged=false;
 let savedPos;
 let iPlay=false;
@@ -248,11 +249,11 @@ function initMamaSTOMP() {
     //Подписка на все темы
     initSTOMP.callback=function(frame) {
         let linkSource=initSTOMP.resultLink;
-            STOMPsubscription= linkSource.subscribe("/topic/renewList", handleListofUsers, {'ack': 'client', 'durable': 'true'});
-            linkSource.subscribe("/topic/invite", handleInviitations, {'ack': 'client', 'durable': 'true'});
+            STOMPsubscription= linkSource.subscribe("/topic/renewList", handleListOfUsers, {'ack': 'client', 'durable': 'true'});
+            linkSource.subscribe("/topic/invite", handleInvitations, {'ack': 'client', 'durable': 'true'});
             linkSource.subscribe("/topic/"+myName(), handleInfoExchange, {'ack': 'client', 'durable': 'true'});
             //И первая иницаилизация стартовой таблицы
-            drowMamaTable();
+            drawMamaTable();
             $("body").css('cursor','default');
             $("#clockWait").remove();
         };
@@ -264,27 +265,45 @@ function initMamaSTOMP() {
      initSTOMP('http://'+window.location.host + ':80/data', '/');
 
     //Подписались на обмен сообщениями по добавлению и уходу игроков
-    let handleListofUsers = function (incoming) {
+    let handleListOfUsers = function (incoming) {
         incoming.ack();
         if (iPlay) return;
-        if (incoming.body=="newCreated" || incoming.body=="reMoved") {drowMamaTable()}
+        if (incoming.body=="newCreated" || incoming.body=="reMoved") { drawMamaTable() }
     };
 
     //Подписались на обмен сообщениями по приглашению
-    let handleInviitations = function (incoming) {
+    let handleInvitations = function (incoming) {
         incoming.ack();
+        if (iPlay) return;
         if (strStartsWith(incoming.body,myName()+"&invitedNew")) {
             inviteShowDialog(incoming.body);
             return;
         }
         if (strStartsWith(incoming.body,myName()+"&invitedFail")) {
-            alertMy('Приглашение не состоялось (отвергнуто)!', function () {});
+            let otherSide=incoming.body.split("&")[2];
+            alertMy('Приглашение к '+otherSide +' не состоялось (отвергнуто)!', function () {});
             return;
         }
         if (strStartsWith(incoming.body,myName()+"&invitedDone")) {
             yourPartner=incoming.body.split("&")[2];
-            alertMy("Приглашение принято игроком " + yourPartner, function () {});
-            goNextStep("prepare");}
+            alertMy("Приглашение принято игроком " + yourPartner, function () {
+                goNextStep("prepare");
+            });
+            return;
+        }
+        if (strFinishesWith(incoming.body,"invitedDone&"+myName())) {
+            yourPartner=incoming.body.split("&")[0]; //toDO таймаут!
+            goNextStep("prepare");
+            return;
+        }
+        if (strFinishesWith(incoming.body,"invitedFail&"+myName())) {
+                let otherSide=incoming.body.split("&")[0];
+                if (agreedTo===otherSide) {  //если мы соглашались только что играть
+                    agreedTo = "";
+                    alertMy('Ваше приглашение от '+otherSide +' более не действует!', function () {});
+                }
+            return;
+        }
     };
 }
 
@@ -292,21 +311,19 @@ function initMamaSTOMP() {
 
 
 //Рисование таблицы игроков (с обновлением по добавлению новых)
-function drowMamaTable() {
+function drawMamaTable() {
 
-            let callback=function(NewrestultJS) {
-                start_date=new Array();
-                for (let i=0; i<NewrestultJS.length; i++)
-                    start_date[i]=[NewrestultJS[i].name.toString(), NewrestultJS[i].playWith.toString(),
-                        NewrestultJS[i].free.toString(), NewrestultJS[i].rating.toString()];
-                setDataforTable();
+            let callback=function(newRowsOfData) {
+                gameStartData=new Array();
+                for (let i=0; i<newRowsOfData.length; i++)
+                    gameStartData[i]=[newRowsOfData[i].name.toString(), newRowsOfData[i].playWith.toString(),
+                        newRowsOfData[i].free.toString(), newRowsOfData[i].rating.toString()];
+                setDataForTable();
             };
 
             sendAJAXget("/rest/gamerInfo", callback, function () {}, function () {});
 
-
-
-            function setDataforTable() {
+            function setDataForTable() {
                 if (tableFirst) {
                     tableFirst = false;
 
@@ -368,7 +385,7 @@ function drowMamaTable() {
                     //и открываемся
                     $("#allGamersTable").css("visibility", "visible");
                 }
-                    allGamersTable.clear().rows.add(start_date).draw();
+                    allGamersTable.clear().rows.add(gameStartData).draw();
             }
 }
 
@@ -379,40 +396,44 @@ function drowMamaTable() {
 //Выдача диалога при поступлении сообщения о приглашении игрока
 function inviteShowDialog(inviter) {
     let names=inviter.split("&");
-    //Проверяем не приглашены ли уже
-    if(!invited) {
-        invited=true;
+    let newInviter=names[2];
+    //Проверяем не приглашены ли уже (повторно приглашаться допустимо)
+    if(invitedBy==='' || invitedBy===newInviter) {
+
+        invitedBy=newInviter;
 
         $('#modalDialogInvite').find("#modalName").text("Приглашает игрок "+names[2]);
         $('#modalDialogInvite').find("#acceptInviteButton").on('click', function() {
 
             //Отправляем акцепт приглашения
             unbindAndCloseInviteDialog();
-            let toSend="accepted&"+ names[2]+"&"+myName();
+            agreedTo = newInviter;
+            let toSend="accepted&"+ newInviter+"&"+myName();
             yourPartner=names[2];
             sendAJAXget("/rest/invitationAccepted/"+toSend, function (x) {},
-                function () {invited=false; goNextStep("prepare");}, ajaxErrorMessage);
+                function () {}, ajaxErrorMessage);
 
         });
         $('#modalDialogInvite').find("#rejectInviteButton").on('click', function() {
 
             //Отправляем режект приглашения
             unbindAndCloseInviteDialog();
-            let toSend="rejected&"+ names[2]+"&"+myName();
+            let toSend="rejected&"+ newInviter+"&"+myName();
             sendAJAXget("/rest/invitationAccepted/"+toSend, function (x) {},
-                function () {invited=false;}, ajaxErrorMessage);
+                function () { }, ajaxErrorMessage);
         });
         inviteDialog.show();
 
     } else {
         //Если уже кем то приглашены - отправляем режект приглашения (можно усложнить алгоритм... потом)
-        let toSend="rejected&"+ names[2]+"&"+myName();
+        let toSend="rejected&"+ newInviter+"&"+myName();
         sendAJAXget("/rest/invitationAccepted/"+toSend, function (x) {},
-            function () {invited=false;}, ajaxErrorMessage);
+            function () {}, ajaxErrorMessage);
     }
 }
 
 function unbindAndCloseInviteDialog(){
+    invitedBy='';
     $('#modalDialogInvite').find("#acceptInviteButton").unbind('click');
     $('#modalDialogInvite').find("#rejectInviteButton").unbind('click');
     inviteDialog.hide();
@@ -481,8 +502,8 @@ let handleInfoExchange = function (incoming) {
         case "error":
             alertMy ("Ошибка на сервере! Перегрузитесь", function () {});
             break;
-        case "esceped":
-            alertMy (context[1], function () {goNextStep("restartGame");});
+        case "escaped":
+            alertMy (context[1], function () { goNextStep("restartGame") });
             break;
         case "setUp":
             if (yourStep) setPageHeader('Ходите Вы....');
@@ -518,6 +539,10 @@ function myName() {
 
 function strStartsWith(str, prefix) {
     return str.indexOf(prefix) === 0;
+}
+
+function strFinishesWith(str, prefix) {
+    return str.indexOf(prefix) === str.length - prefix.length;
 }
 
 

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 
 //Класс объявлен как одиночка, так как все что он делает - это манипуляции с единственной на всю программу
-//базой "ин мемори" данных об игроках и о ходе игры, хранящейся в конкурентных коллекциях
+//базой "ин-мемори" данных об игроках и о ходе игры, хранящейся в конкурентных коллекциях
 
 @Service("allGames")
 @RequiredArgsConstructor
@@ -95,7 +95,7 @@ public class AllGames {
                 .ifPresent(partner -> {
                     GamerSet resetPartner = partner.toBuilder().free(true).playWith("").invitedBy("").killed(0).build();
                     updateGamer(resetPartner);
-                    messaging.convertAndSend("/topic/" + partner.getName(), "esceped&Ваш соперник сбежал!");
+                    messaging.convertAndSend("/topic/" + partner.getName(), "escaped&Ваш соперник сбежал!");
                 });
     }
 

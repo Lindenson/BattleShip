@@ -34,7 +34,7 @@ public class SecurityConfiguration {
         return
         http
                 //Для доступности контроллера СВОМПа
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/data/**"))
+                .csrf(Customizer.withDefaults())
                 .cors(Customizer.withDefaults())
                 //Все остальное
                 .formLogin(form -> form

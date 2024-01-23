@@ -35,7 +35,7 @@ public class CrossGamerInfoBuss {
         final GamerSet invitee = allGames.getGamerByName(to);
 
         if (checkIfStatusChangeInBetween(from, to, inviter, invitee)) return;
-        updateSidesOfGame(from, to, invitee, inviter, false);
+        updateSidesOfGame(from, to, invitee, inviter);
         listOfPlayersChangedEvent();
         messaging.convertAndSend("/topic/invite", from+"&invitedDone&"+to);
     }
@@ -50,9 +50,15 @@ public class CrossGamerInfoBuss {
             messaging.convertAndSend("/topic/"+from, "error&Что то пошло не так!");
             return;
         }
-        updateSidesOfGame(from, to, invitee, inviter, true);
+        rejectIfNotPlaying(from, to, inviter, invitee);
+    }
+
+    private void rejectIfNotPlaying(String from, String to, GamerSet inviter, GamerSet invitee) {
         listOfPlayersChangedEvent();
-        messaging.convertAndSend("/topic/invite", from+"&invitedFail&"+to);
+        //так как возможны множественные приглашения, то мы проверим
+        //если еще не играют между собой
+        if (!inviter.getPlayWith().equals(to) || !invitee.getPlayWith().equals(from))
+            messaging.convertAndSend("/topic/invite", from +"&invitedFail&"+ to);
     }
 
     //Объявляем, что расставили корабли
@@ -64,7 +70,7 @@ public class CrossGamerInfoBuss {
         }
         final GamerSet partner2 = allGames.getGamerByName(partner1.getPlayWith());
         if (partner2==null) {
-            messaging.convertAndSend("/topic/"+name, "esceped&Ваш соперник сбежал!");
+            messaging.convertAndSend("/topic/"+name, "escaped&Ваш соперник сбежал!");
             return;
         }
         messaging.convertAndSend("/topic/"+partner1.getPlayWith(), "setUp&Cоперник уже расставил фигуры!");
@@ -116,24 +122,16 @@ public class CrossGamerInfoBuss {
             listOfPlayersChangedEvent();
             return true;
         }
-        if (!inviter.isFree()) {
-            //Приглашение не состоялось
-            messaging.convertAndSend("/topic/invite", from +"&invitedFail&"+ to);
-            listOfPlayersChangedEvent();
-            return true;
-        }
-        if (!invitee.isFree()) {
-            //Приглашение не состоялось
-            messaging.convertAndSend("/topic/invite", from +"&invitedFail&"+ to);
-            listOfPlayersChangedEvent();
+        if (!(inviter.isFree() && invitee.isFree())) {
+            rejectIfNotPlaying(from, to, inviter, invitee);
             return true;
         }
         return false;
     }
 
-    private void updateSidesOfGame(String from, String to, GamerSet invitee, GamerSet inviter, boolean positive) {
-        GamerSet inviteeNew = invitee.toBuilder().playWith(positive?"":from).free(positive).build();
-        GamerSet inviterNew = inviter.toBuilder().free(positive).playWith(positive?"":to).build();
+    private void updateSidesOfGame(String from, String to, GamerSet invitee, GamerSet inviter) {
+        GamerSet inviteeNew = invitee.toBuilder().playWith(from).free(false).build();
+        GamerSet inviterNew = inviter.toBuilder().free(false).playWith(to).build();
         allGames.updateGamersAtomically(inviterNew, inviteeNew);
     }
 }

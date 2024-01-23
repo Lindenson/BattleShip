@@ -1,6 +1,6 @@
 
 
-//УПРАВЛЕНИЕ СУДАМИ СОПЕРНИКА
+//УПРАВЛЕНИЕ СУДАМИ
 
 //Инициация игровой модели соперника
 function initFightModel() {
@@ -14,13 +14,13 @@ function initFightModel() {
 
 function sendMyNextStep(cell){
         cellObject.fromId(cell);
-        var urlTosend="/rest/doMove/"+myName()+"/"+yourPartner;
-        var DatatoSent={x:cellObject.x, y:cellObject.y};
-        var stepData=JSON.stringify(DatatoSent);
+        const url_to_send = "/rest/doMove/" + myName() + "/" + yourPartner;
+        const data_to_sent = {x: cellObject.x, y: cellObject.y};
+        const step_data = JSON.stringify(data_to_sent);
         yourStep=false;
         setPageHeader('.......');
         //Отправка на сервер хода!
-        sendAJAXpost (urlTosend, stepData, function (x) {
+        sendAJAXpost (url_to_send, step_data, function (x) {
             switch (x[0]) {
                 case "zero" :
                     yourStep=false;
@@ -36,6 +36,7 @@ function sendMyNextStep(cell){
                     showKill(cellObject.x, cellObject.y);
                     yourStep=true;
                     setPageHeader('Ходите Вы....');
+                    bomb_explode();
                     break;
                 case "victory" :
                     $('#'+cellObject.toIdPartner()).addClass('killed');
@@ -81,6 +82,7 @@ function hitMe(x, y, result) {
             showKillMe(cellObject.x, cellObject.y);
             yourStep=false;
             setPageHeader('Ходит '+yourPartner+'....');
+            bomb_explode();
             break;
         case "defeated" :
             $('#'+cellObject.toId()).addClass('killed');
@@ -95,122 +97,128 @@ function hitMe(x, y, result) {
 
 function showKill(x, y) {
     //СканнВверх
-    var gotofinish=true;
+    let goto_finish = true;
     cellObject.x=x;
     cellObject.y=y;
-    while (gotofinish){
+    while (goto_finish){
         console.log(cellObject.toIdPartner());
         $('#'+cellObject.toIdPartner()).removeClass('injured');
         $('#'+cellObject.toIdPartner()).addClass('killed');
-        if (++cellObject.x>10) gotofinish=false;
-        var check=$('#'+cellObject.toIdPartner()).hasClass('injured');
-        if (!check) gotofinish=false;
+        if (++cellObject.x>10) goto_finish=false;
+        let check=$('#'+cellObject.toIdPartner()).hasClass('injured');
+        if (!check) goto_finish=false;
     }
     //СканнВниз
-    gotofinish=true;
+    goto_finish=true;
     cellObject.x=x;
     cellObject.y=y;
-    while (gotofinish){
+    while (goto_finish){
         console.log(cellObject.toIdPartner());
         $('#'+cellObject.toIdPartner()).removeClass('injured');
         $('#'+cellObject.toIdPartner()).addClass('killed');
-        if (--cellObject.x<1) gotofinish=false;
-        var check=$('#'+cellObject.toIdPartner()).hasClass('injured');
-        if (!check) gotofinish=false;
+        if (--cellObject.x<1) goto_finish=false;
+        let check=$('#'+cellObject.toIdPartner()).hasClass('injured');
+        if (!check) goto_finish=false;
     }
     //СканВлево
-    gotofinish=true;
+    goto_finish=true;
     cellObject.x=x;
     cellObject.y=y;
-    while (gotofinish){
+    while (goto_finish){
         console.log(cellObject.toIdPartner());
         $('#'+cellObject.toIdPartner()).removeClass('injured');
         $('#'+cellObject.toIdPartner()).addClass('killed');
-        if (++cellObject.y>10) gotofinish=false;
-        var check=$('#'+cellObject.toIdPartner()).hasClass('injured');
-        if (!check) gotofinish=false;
+        if (++cellObject.y>10) goto_finish=false;
+        let check=$('#'+cellObject.toIdPartner()).hasClass('injured');
+        if (!check) goto_finish=false;
     }
     //СканВправо
-    gotofinish=true;
+    goto_finish=true;
     cellObject.x=x;
     cellObject.y=y;
-    while (gotofinish){
+    while (goto_finish){
         console.log(cellObject.toIdPartner());
         $('#'+cellObject.toIdPartner()).removeClass('injured');
         $('#'+cellObject.toIdPartner()).addClass('killed');
-        if (--cellObject.y<1) gotofinish=false;
-        var check=$('#'+cellObject.toIdPartner()).hasClass('injured');
-        if (!check) gotofinish=false;
+        if (--cellObject.y<1) goto_finish=false;
+        let check=$('#'+cellObject.toIdPartner()).hasClass('injured');
+        if (!check) goto_finish=false;
     }
 }
 
 
-
-
 function showKillMe(x, y) {
     //СканнВверх
-    var gotofinish=true;
+    let goto_finish=true;
     cellObject.x=x;
     cellObject.y=y;
-    while (gotofinish){
+    while (goto_finish){
         console.log(cellObject.toId());
         $('#'+cellObject.toId()).removeClass('injured');
         $('#'+cellObject.toId()).addClass('killed');
-        if (++cellObject.x>10) gotofinish=false;
-        var check=$('#'+cellObject.toId()).hasClass('injured');
-        if (!check) gotofinish=false;
+        if (++cellObject.x>10) goto_finish=false;
+        let check=$('#'+cellObject.toId()).hasClass('injured');
+        if (!check) goto_finish=false;
     }
     //СканнВниз
-    gotofinish=true;
+    goto_finish=true;
     cellObject.x=x;
     cellObject.y=y;
-    while (gotofinish){
+    while (goto_finish){
         console.log(cellObject.toId());
         $('#'+cellObject.toId()).removeClass('injured');
         $('#'+cellObject.toId()).addClass('killed');
-        if (--cellObject.x<1) gotofinish=false;
-        var check=$('#'+cellObject.toId()).hasClass('injured');
-        if (!check) gotofinish=false;
+        if (--cellObject.x<1) goto_finish=false;
+        let check=$('#'+cellObject.toId()).hasClass('injured');
+        if (!check) goto_finish=false;
     }
     //СканВлево
-    gotofinish=true;
+    goto_finish=true;
     cellObject.x=x;
     cellObject.y=y;
-    while (gotofinish){
+    while (goto_finish){
         console.log(cellObject.toId());
         $('#'+cellObject.toId()).removeClass('injured');
         $('#'+cellObject.toId()).addClass('killed');
-        if (++cellObject.y>10) gotofinish=false;
-        var check=$('#'+cellObject.toId()).hasClass('injured');
-        if (!check) gotofinish=false;
+        if (++cellObject.y>10) goto_finish=false;
+        let check=$('#'+cellObject.toId()).hasClass('injured');
+        if (!check) goto_finish=false;
     }
     //СканВправо
-    gotofinish=true;
+    goto_finish=true;
     cellObject.x=x;
     cellObject.y=y;
-    while (gotofinish){
+    while (goto_finish){
         console.log(cellObject.toId());
         $('#'+cellObject.toId()).removeClass('injured');
         $('#'+cellObject.toId()).addClass('killed');
-        if (--cellObject.y<1) gotofinish=false;
+        if (--cellObject.y<1) goto_finish=false;
         let check=$('#'+cellObject.toId()).hasClass('injured');
-        if (!check) gotofinish=false;
+        if (!check) goto_finish=false;
     }
 }
 
 
 //универсальный диалог сообщений
-function alertMy(text, callback) {
+let alertMy = function (text, callback) {
+    let alertDialog = new bootstrap.Modal(document.getElementById('modalDialogInfo'));
+    alertDialog.hide()
     $("#forContentInfo").text(text);
     $("#modalInfoButton").on('click', function () {
         $("#modalInfoButton").unbind( "click" );
-        callback();
         alertDialog.hide();
+        inviteDialog.hide();
+        callback();
+        $('#modalDialogInfo').modal('hide');
     });
     alertDialog.show();
 }
-
-
-//диалоги
-let alertDialog = new bootstrap.Modal(document.getElementById('modalDialogInfo'));
 let inviteDialog = new bootstrap.Modal(document.getElementById('modalDialogInvite'));
+
+
+
+//звуковые эффекты
+function bomb_explode() {
+    let audio = new Audio('/js/ship_down.mp3');
+    audio.play().then(r => {});
+}
