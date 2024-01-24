@@ -4,7 +4,7 @@
 function initSTOMP(urlToGo, urlOnExpire) {
 
     //Отладка стомпа
-    let DEBUG_STOMP= true;
+    let DEBUG_STOMP= false;
 
     //Проверка поддержки
     checkSupport();
@@ -30,7 +30,7 @@ function initSTOMP(urlToGo, urlOnExpire) {
     }
 
     //Обработка ошибок делает реконнект 3 раза - а потом сдаеться и выходит их игры
-    let stompError = function (error) {
+    initSTOMP.stompError = function (error) {
         console.log('Broker reported error: ' + error.headers['message']);
         console.log('Additional details: ' + error.body);
     }
@@ -49,7 +49,7 @@ function initSTOMP(urlToGo, urlOnExpire) {
             heartbeatOutgoing: 4000,
         });
         initSTOMP.client.onConnect = initSTOMP.callback;
-        initSTOMP.client.onStompError = stompError;
+        initSTOMP.client.onStompError = initSTOMP.stompError;
         initSTOMP.client.activate();
     }
 }

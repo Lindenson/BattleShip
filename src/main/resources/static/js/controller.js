@@ -82,7 +82,6 @@ function forDrag() {
                         insertDiv(finalxPos, finalyPos, sl, positioN.HOR);
                         //Если разместили все корабли то отображаем кнопку "Вперед"
                         goFuther++;
-                        console.log(goFuther)
                         if (goFuther>10) $('#gofuther').css("visibility", "visible")
                     }
                     else $(this).offset(initOffset);

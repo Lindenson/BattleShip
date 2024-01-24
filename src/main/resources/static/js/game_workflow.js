@@ -103,7 +103,6 @@ function showKill(x, y) {
     cellObject.x=x;
     cellObject.y=y;
     while (goto_finish){
-        console.log(cellObject.toIdPartner());
         $('#'+cellObject.toIdPartner()).removeClass('injured');
         $('#'+cellObject.toIdPartner()).addClass('killed');
         if (++cellObject.x>10) goto_finish=false;
@@ -115,7 +114,6 @@ function showKill(x, y) {
     cellObject.x=x;
     cellObject.y=y;
     while (goto_finish){
-        console.log(cellObject.toIdPartner());
         $('#'+cellObject.toIdPartner()).removeClass('injured');
         $('#'+cellObject.toIdPartner()).addClass('killed');
         if (--cellObject.x<1) goto_finish=false;
@@ -127,7 +125,6 @@ function showKill(x, y) {
     cellObject.x=x;
     cellObject.y=y;
     while (goto_finish){
-        console.log(cellObject.toIdPartner());
         $('#'+cellObject.toIdPartner()).removeClass('injured');
         $('#'+cellObject.toIdPartner()).addClass('killed');
         if (++cellObject.y>10) goto_finish=false;
@@ -139,7 +136,6 @@ function showKill(x, y) {
     cellObject.x=x;
     cellObject.y=y;
     while (goto_finish){
-        console.log(cellObject.toIdPartner());
         $('#'+cellObject.toIdPartner()).removeClass('injured');
         $('#'+cellObject.toIdPartner()).addClass('killed');
         if (--cellObject.y<1) goto_finish=false;
@@ -155,7 +151,6 @@ function showKillMe(x, y) {
     cellObject.x=x;
     cellObject.y=y;
     while (goto_finish){
-        console.log(cellObject.toId());
         $('#'+cellObject.toId()).removeClass('injured');
         $('#'+cellObject.toId()).addClass('killed');
         if (++cellObject.x>10) goto_finish=false;
@@ -167,7 +162,6 @@ function showKillMe(x, y) {
     cellObject.x=x;
     cellObject.y=y;
     while (goto_finish){
-        console.log(cellObject.toId());
         $('#'+cellObject.toId()).removeClass('injured');
         $('#'+cellObject.toId()).addClass('killed');
         if (--cellObject.x<1) goto_finish=false;
@@ -179,7 +173,6 @@ function showKillMe(x, y) {
     cellObject.x=x;
     cellObject.y=y;
     while (goto_finish){
-        console.log(cellObject.toId());
         $('#'+cellObject.toId()).removeClass('injured');
         $('#'+cellObject.toId()).addClass('killed');
         if (++cellObject.y>10) goto_finish=false;
@@ -191,7 +184,6 @@ function showKillMe(x, y) {
     cellObject.x=x;
     cellObject.y=y;
     while (goto_finish){
-        console.log(cellObject.toId());
         $('#'+cellObject.toId()).removeClass('injured');
         $('#'+cellObject.toId()).addClass('killed');
         if (--cellObject.y<1) goto_finish=false;
