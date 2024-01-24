@@ -96,11 +96,6 @@ public class HomeController {
 
         //Сохранить игрока в базе данных
         gamerDAO.saveGamer(gamer);
-
-        //По каким то причинам вход пользователя через АПИ (ниже) не позволяет контролировать таймаут сессии
-        //пока не разобрался почему так!!!! Приходиться возвращать пользователя на страницу логина
-        //Authentication request = new UsernamePasswordAuthenticationToken(gamer.getName(), gamer.getPassword());
-        //SecurityContextHolder.getContext().setAuthentication(request);
         return new ModelAndView("redirect:success");
     }
 

@@ -1,10 +1,12 @@
 package wolper.logic;
 
+import jakarta.annotation.Nullable;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import wolper.domain.GamerSet;
 
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -14,36 +16,30 @@ public class CrossGamerInfoBuss {
 
     private final AllGames allGames;
     private final ShipMapper shipMapper;
-    private final SimpMessageSendingOperations messaging;
+    private final EventMessenger eventMessanger;
 
-
-    //Сообщаем, что нас можно приглашать
-    public void listOfPlayersChangedEvent(){
-        messaging.convertAndSend("/topic/renewList", "newCreated");
-    }
 
     //Сватаемся
-    public void inviteOneAnother(String from, String to) {
+    public void inviteOneAnother(@NonNull String from, @NonNull String to) {
         final GamerSet inviter = allGames.getGamerByName(from);
         final GamerSet invitee = allGames.getGamerByName(to);
 
         if (checkIfStatusChangeInBetween(from, to, inviter, invitee)) return;
-        messaging.convertAndSend("/topic/invite", to+"&invitedNew&"+from);
+        eventMessanger.inviteEvent(from, to);
     }
 
     //Соглашаемся поиграть
-    public void acceptInvitation(String from, String to) {
+    public void acceptInvitation(@NonNull String from, @NonNull String to) {
         final GamerSet inviter = allGames.getGamerByName(from);
         final GamerSet invitee = allGames.getGamerByName(to);
 
         if (checkIfStatusChangeInBetween(from, to, inviter, invitee)) return;
         updateSidesOfGame(from, to, invitee, inviter);
-        messaging.convertAndSend("/topic/invite", from+"&invitedDone&"+to);
-        listOfPlayersChangedEvent();
+        eventMessanger.inviteAcceptedEvent(from, to);
     }
 
     //Отклоняем приглашение
-    public void rejectInvitation(String from, String to) {
+    public void rejectInvitation(@NonNull String from, @NonNull String to) {
         final GamerSet inviter = allGames.getGamerByName(from);
         final GamerSet invitee = allGames.getGamerByName(to);
 
@@ -52,38 +48,39 @@ public class CrossGamerInfoBuss {
     }
 
     //Объявляем, что расставили корабли
-    public void informPartnerOfFinishedSetUp(String from) {
+    public void informPartnerOfFinishedSetUp(@NonNull String from) {
         final GamerSet inviter = allGames.getGamerByName(from);
         final String to = Optional.ofNullable(inviter).map(GamerSet::getPlayWith).orElse(null);
         final GamerSet invitee = Optional.ofNullable(to).map(allGames::getGamerByName).orElse(null);
 
         if (ifDisappearedSendError(from, to, inviter, invitee)) return;
-        messaging.convertAndSend("/topic/"+inviter, "setUp&Cоперник уже расставил фигуры!");
+        Objects.requireNonNull(to);
+        eventMessanger.readyToPlayEvent(to);
     }
 
     //Ход соперника - проверка попадания - выдача поражения или победы
-    public String doNextMove(String attacker, String victim, int x, int y) {
+    public String doNextMove(@NonNull String attacker, @NonNull String victim, int x, int y) {
         if (checkMyRightToHit(attacker, victim))
             switch (shipMapper.doHit(victim, y - 1, x - 1)) {
                 case 0:
-                    messaging.convertAndSend("/topic/" + victim, "hitYou&" + x + "&" + y + "&zero");
+                    eventMessanger.missedPlayEvent(victim, x, y);
                     return "zero";
                 case 1:
-                    messaging.convertAndSend("/topic/" + victim, "hitYou&" + x + "&" + y + "&injured");
+                    eventMessanger.hitPlayEvent(victim, x, y);
                     return "injured";
                 case 2:
                     if (shipMapper.checkKillAll(victim)) {
-                        messaging.convertAndSend("/topic/" + victim, "hitYou&" + x + "&" + y + "&defeated");
+                        eventMessanger.winPlayEvent(victim, x, y);
                         updateRatings(attacker, victim);
                         return "victory";
                     }
-                    messaging.convertAndSend("/topic/" + victim, "hitYou&" + x + "&" + y + "&killed");
+                    eventMessanger.killedPlayEvent(victim, x, y);
                     return "killed";
             }
         return "";
     }
 
-    private void updateRatings(String attacker, String victim) {
+    private void updateRatings(@NonNull String attacker, @NonNull String victim) {
         GamerSet attackerGamer = allGames.getGamerByName(attacker);
         GamerSet victimGamer = allGames.getGamerByName(victim);
 
@@ -93,11 +90,11 @@ public class CrossGamerInfoBuss {
                 .playWith("").invitedBy("").rating(attackerGamer.getRating()).build();
 
         allGames.updateGamersAtomically(newAttacker, newVictim);
-        listOfPlayersChangedEvent();
+        eventMessanger.listOfPlayersChangedEvent();
     }
 
     //Безопасность - проверяем не подделан ли запрос
-    private boolean checkMyRightToHit(String from, String to) {
+    private boolean checkMyRightToHit(@NonNull String from, @NonNull String to) {
         final GamerSet inviter = allGames.getGamerByName(from);
         final GamerSet invitee = allGames.getGamerByName(to);
 
@@ -105,7 +102,9 @@ public class CrossGamerInfoBuss {
         return inviter.getPlayWith().equals(invitee.getName());
     }
 
-    private boolean checkIfStatusChangeInBetween(String from, String to, GamerSet inviter, GamerSet invitee) {
+    private boolean checkIfStatusChangeInBetween(@NonNull String from, @NonNull String to,
+                                                 GamerSet inviter, GamerSet invitee)
+    {
         if (ifDisappearedSendError(from, to, inviter, invitee)) return true;
 
         if (!(inviter.isFree() && invitee.isFree())) {
@@ -115,36 +114,40 @@ public class CrossGamerInfoBuss {
         return false;
     }
 
-    private void updateSidesOfGame(String from, String to, GamerSet invitee, GamerSet inviter) {
+    private void updateSidesOfGame(@NonNull String from, @NonNull String to, GamerSet invitee, GamerSet inviter) {
         GamerSet inviteeNew = invitee.toBuilder().playWith(from).free(false).build();
         GamerSet inviterNew = inviter.toBuilder().free(false).playWith(to).build();
         allGames.updateGamersAtomically(inviterNew, inviteeNew);
-
-        listOfPlayersChangedEvent();
+        eventMessanger.listOfPlayersChangedEvent();
     }
 
-    private boolean ifDisappearedSendError(String from, String to, GamerSet inviter, GamerSet invitee) {
-        if ((inviter != null) && (invitee == null)) {
-            messaging.convertAndSend("/topic/"+inviter, "escaped&Ваш соперник сбежал!");
+    private boolean ifDisappearedSendError(@NonNull String from, @Nullable String to,
+                                           GamerSet inviter, GamerSet invitee)
+    {
+        if (inviter == null && invitee == null) {
+            eventMessanger.errorEvent(from);
+            if (Objects.nonNull(to)) eventMessanger.errorEvent(to);
             return true;
         }
-        if ((invitee != null) && (inviter == null)) {
-            messaging.convertAndSend("/topic/"+invitee, "escaped&Ваш соперник сбежал!");
+        if (invitee == null) {
+            eventMessanger.escapedPlayEvent(from);
             return true;
         }
         if (inviter == null) {
-            messaging.convertAndSend("/topic/"+ from, "error&Что то пошло не так!");
-            messaging.convertAndSend("/topic/"+ to, "error&Что то пошло не так!");
+            Objects.requireNonNull(to);
+            eventMessanger.escapedPlayEvent(to);
             return true;
         }
         return false;
     }
 
-    private void rejectIfNotPlaying(String from, String to, GamerSet inviter, GamerSet invitee) {
+    private void rejectIfNotPlaying(@NonNull String from, @NonNull String to,
+                                    @NonNull GamerSet inviter, @NonNull GamerSet invitee)
+    {
         //так как возможны множественные приглашения, то мы проверим
         //если еще не играют между собой
         if (!inviter.getPlayWith().equals(to) || !invitee.getPlayWith().equals(from))
-            messaging.convertAndSend("/topic/invite", from +"&invitedFail&"+ to);
+            eventMessanger.inviteRejectedEvent(from, to);
     }
 
 }

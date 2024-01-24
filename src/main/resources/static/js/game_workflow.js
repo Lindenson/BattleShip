@@ -43,8 +43,8 @@ function sendMyNextStep(cell){
                     showKill(cellObject.x, cellObject.y);
                     yourStep=false;
                     setPageHeader('Вы победили!');
-                    alertMy("Поздравляем Вас с победой!", function () {});
-                    goNextStep("restartGame");
+                    alertMy("Поздравляем Вас с победой!",
+                        function () {goNextStep("restartGame");}, true);
                     break;
                 default :
                     yourStep=true;
@@ -89,8 +89,8 @@ function hitMe(x, y, result) {
             $('#'+cellObject.toId()).addClass('killed');
             yourStep=false;
             setPageHeader('Вы проиграли!');
-            alertMy("Вы проиграли! Удачи в следующей игре...", function () {});
-            goNextStep("restartGame");
+            alertMy("Вы проиграли! Удачи в следующей игре...",
+                function () {goNextStep("restartGame");}, true);
             break;
     }
 }

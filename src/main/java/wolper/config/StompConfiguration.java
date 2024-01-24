@@ -17,8 +17,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class StompConfiguration implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/data").setAllowedOriginPatterns("*").withSockJS()
-                .setDisconnectDelay(60000*3);
+        registry.addEndpoint("/data").setAllowedOriginPatterns("*");
     }
 
 
@@ -27,7 +26,7 @@ public class StompConfiguration implements WebSocketMessageBrokerConfigurer {
          SimpleBrokerRegistration simpleBrokerRegistration = registry.enableSimpleBroker("/queue", "/topic");
          registry.setApplicationDestinationPrefixes("/app");
          simpleBrokerRegistration.setTaskScheduler(messageBrokerSockJsTaskScheduler());
-         long [] hbeat = {40000,40000};
+         long [] hbeat = {4000, 4000};
          simpleBrokerRegistration.setHeartbeatValue(hbeat);
 
 

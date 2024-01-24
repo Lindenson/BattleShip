@@ -33,7 +33,7 @@ let savedPos;
 
 //таймаут
 const invitationTimeOut = 15000;
-var invitationCallback;
+let invitationCallback;
 
 
 
@@ -172,7 +172,7 @@ function forDragNot(){
 
 //Найдем попали ли в пределы таблицы-поля
 function checkNotInsideMainTable(offset, w, h) {
-    bigOffset=getMainTableOffset();
+    let bigOffset=getMainTableOffset();
     if (offset.top<bigOffset.top) return false;
     if (offset.left<bigOffset.left) return false;
     if ((offset.top+h-forDivBoxDela)>(getMainTableHeight()+bigOffset.top)) return false;
@@ -187,12 +187,12 @@ function checkNotInsideMainTable(offset, w, h) {
 function getElsAt(top, left){
     return $("body").find(".items")
         .filter(function() {
-            centerYBox=$(this).offset().top+forDivBox/2;
+            let centerYBox=$(this).offset().top+forDivBox/2;
             centerXBox=$(this).offset().left+forDivBox/2;
             centerYShip=top+forDivBox/2;
             centerXShip=left+forDivBox/2;
-            deltaY=Math.abs(centerYBox-centerYShip);
-            deltaX=Math.abs(centerXBox-centerXShip);
+            let deltaY=Math.abs(centerYBox-centerYShip);
+            let deltaX=Math.abs(centerXBox-centerXShip);
             return deltaX<forDivBoxDela
                 && deltaY<forDivBoxDela;
         });
@@ -202,7 +202,7 @@ function getElsAt(top, left){
 
 //Вставляет виртуальную рамку, чтобы показать как мы перемещаем расставленные суда
 function insertDiv(myX, myY, widTH, myPos) {
-    tagToadd=getElsAt(myY, myX);
+    let tagToadd=getElsAt(myY, myX);
     myY=tagToadd.offset().top;
     myX=tagToadd.offset().left;
     let newDiv;
@@ -253,12 +253,11 @@ function sendJSONtoServer() {
 function initMamaSTOMP() {
     //Подписка на все темы
     initSTOMP.callback=function(frame) {
-        let linkSource=initSTOMP.resultLink;
-            STOMP_subscription= linkSource.subscribe("/topic/renewList", handleListOfUsers, {'ack': 'client', 'durable': 'true'});
-            linkSource.subscribe("/topic/invite", handleInvitations, {'ack': 'client', 'durable': 'true'});
-            linkSource.subscribe("/topic/"+myName(), handleInfoExchange, {'ack': 'client', 'durable': 'true'});
+            STOMP_subscription= initSTOMP.client.subscribe("/topic/renewList", handleListOfUsers, {'ack': 'client', 'durable': 'true'});
+            initSTOMP.client.subscribe("/topic/invite", handleInvitations, {'ack': 'client', 'durable': 'true'});
+            initSTOMP.client.subscribe("/topic/"+myName(), handleInfoExchange, {'ack': 'client', 'durable': 'true'});
             //И первая иницаилизация стартовой таблицы
-            drawMamaTable();
+            drawListGamersTable();
             $("body").css('cursor','default');
             $("#clockWait").remove();
         };
@@ -267,13 +266,13 @@ function initMamaSTOMP() {
     $("body").css('cursor','wait !important; z-index: 999; height: 100%; width: 100%;');
 
 
-     initSTOMP('http://'+window.location.host + ':80/data', '/');
+     initSTOMP('ws://'+window.location.host + '/data', '/');
 
     //Подписались на обмен сообщениями по добавлению и уходу игроков
     let handleListOfUsers = function (incoming) {
         incoming.ack();
         if (iPlay) return;
-        if (incoming.body=="newCreated" || incoming.body=="reMoved") { drawMamaTable() }
+        if (incoming.body=="playersUpdated") { drawListGamersTable() }
     };
 
     //Подписались на обмен сообщениями по приглашению
@@ -315,7 +314,7 @@ function initMamaSTOMP() {
 
 
 //Рисование таблицы игроков (с обновлением по добавлению новых)
-function drawMamaTable() {
+function drawListGamersTable() {
 
             let callback=function(newRowsOfData) {
                 gamersList=new Array();
@@ -396,7 +395,10 @@ function drawMamaTable() {
                         if (free!=='true') return;
                         //Отправляем приглашение
                         alertMy("Отправляем приглашение "+$(this).children(':first').text(), function () {
-                            initSTOMP.resultLink.send("/app/infoExchange", {"persistent":"true"}, "invite&" + myName() + "&" + nameHis);
+                            initSTOMP.client.publish({
+                                destination: '/app/infoExchange',
+                                body: "invite&" + myName() + "&" + nameHis,
+                            })
                         });
                     });
                 }

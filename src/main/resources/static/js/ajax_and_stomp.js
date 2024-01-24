@@ -1,24 +1,21 @@
 
-//ВСЕ ДЛЯ СВОМПА
-
-//Число попыток реконнекта
-let tries=0;
+//ВСЕ ДЛЯ СТОМПА И АЯКСА
 
 function initSTOMP(urlToGo, urlOnExpire) {
+
+    //Отладка стомпа
+    let DEBUG_STOMP= true;
 
     //Проверка поддержки
     checkSupport();
 
+    //запуск
     initSTOMP.url=urlToGo;
-
-    //Отладка стомпа
-    //client.debug = onDebug;
-    
-    reconnect();
+    connect();
 
     //Отладка стомпа
     function onDebug(m) {
-        alert("STOMP DEBUG "+m);
+        if (DEBUG_STOMP) console.log("STOMP DEBUG: "+m);
     }
 
     //Проверка поддержки
@@ -28,28 +25,32 @@ function initSTOMP(urlToGo, urlOnExpire) {
         } else {
             console.log("BROWSER NOT SUPPORTED");
             alert("Загрузите игру в браузере с поддержкой современных функций (Веб Соккет в т.ч.)");
+            window.location = window.location.host;
         }
     }
 
     //Обработка ошибок делает реконнект 3 раза - а потом сдаеться и выходит их игры
-    function stompError (error) {
-        console.log("STOMP reconnecting.......");
-        setTimeout(reconnect, 300);
+    let stompError = function (error) {
+        console.log('Broker reported error: ' + error.headers['message']);
+        console.log('Additional details: ' + error.body);
     }
 
     //Коннект и реконнект с настройкой опций
-    function reconnect() {
-        //Исходные позиции
+    function connect() {
         let token = $("meta[name='_csrf']").attr("content");
         let header = $("meta[name='_csrf_header']").attr("content");
-        let headers = {};
-        headers[header] = token;
-        initSTOMP.ws = new SockJS(initSTOMP.url);
-        initSTOMP.resultLink =  Stomp.over(initSTOMP.ws);
-        initSTOMP.resultLink.heartbeat.incoming = 40000;
-        initSTOMP.resultLink.heartbeat.outgoing = 40000;
-        if ((tries++)>0)  {console.log('!!!STOMP CLOSED!!!'); window.location = urlOnExpire;}
-        else initSTOMP.resultLink.connect(headers, initSTOMP.callback, stompError);
+        let headers = {}; [header] = token;
+        initSTOMP.client = new StompJs.Client({
+            brokerURL: initSTOMP.url,
+            connectHeaders: headers,
+            debug: onDebug,
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+        });
+        initSTOMP.client.onConnect = initSTOMP.callback;
+        initSTOMP.client.onStompError = stompError;
+        initSTOMP.client.activate();
     }
 }
 

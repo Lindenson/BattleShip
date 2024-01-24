@@ -1,7 +1,7 @@
 
 
 //КОНСТАНТЫ
-var statuS = {
+let statuS = {
     KILLED: 0,
     ALIFE :1,
     NEIGBOUR:2,
@@ -9,20 +9,20 @@ var statuS = {
     INJURED:4
 };
 
-var positioN = {
+let positioN = {
     VERT:0,
     HOR:1
 };
 
 
 //МОДЕЛЬ СОБСТВЕННОЙ ИГРОВОЙ ТАБЛИЦЫ
-var Model;
-var idStart=0;
+let Model;
+let idStart=0;
 
 
 
 //Объект - адаптер для описания ячейки 
-var cellObject = {
+let cellObject = {
     x: 1,
     y: 1,
     toId: function () {
@@ -64,7 +64,7 @@ function initModel() {
             [new modelShip(10, 1), new modelShip(10, 2), new modelShip(10, 3), new modelShip(10, 4), new modelShip(10, 5), new modelShip(10, 6), new modelShip(10, 7), new modelShip(10, 8), new modelShip(10, 9), new modelShip(10, 10)]
         ];
 
-        var self=this;
+        let self=this;
 
         this.poseShip = function (startY, startX, position, sizE, myId) {
                 if (position == positioN.VERT) {
@@ -83,7 +83,7 @@ function initModel() {
                 }
                 if (position == positioN.HOR) {
                     setNeigbours(startX, startY, positioN.HOR, sizE);
-                    for (var i = 0; i < sizE; i++) {
+                    for (let i = 0; i < sizE; i++) {
                         self.ships[startX - 1 +i][startY - 1].pos=positioN.HOR;
                         self.ships[startX - 1 +i][startY - 1].staT=statuS.ALIFE;
                         self.ships[startX - 1 +i][startY - 1].siZe=sizE;
@@ -96,9 +96,9 @@ function initModel() {
 
 
         this.validateShip = function (startY, startX, position, sizE, ids) {
-            var resT=true;
+            let resT=true;
             if (position == positioN.VERT)
-                for (var i = 0; i < sizE; i++) {
+                for (let i = 0; i < sizE; i++) {
                     if ((startY - 1 + i) > 9) return false;
                     if (self.ships[startX - 1][startY - 1 + i].staT== statuS.ALIFE) {
                         resT=false;
@@ -114,7 +114,7 @@ function initModel() {
                     if (!resT) return resT;
                 }
             if (position == positioN.HOR)
-                for (var i = 0; i < sizE; i++) {
+                for (let i = 0; i < sizE; i++) {
                     if ((startX - 1 + i) > 9) return false;
                     if (self.ships[startX - 1+i][startY - 1].staT== statuS.ALIFE) {
                         resT=false;
@@ -141,8 +141,8 @@ function initModel() {
         function lookaround(x, y, id) {
             for (i=-1; i<2; i++)
                 for(j=-1; j<2; j++) {
-                    var xx=x+i;
-                    var yy=y+j;
+                    let xx=x+i;
+                    let yy=y+j;
                     if ((xx>-1)&&(xx<10))
                         if ((yy>-1)&&(yy<10))
                             if ((self.ships[xx][yy].id!==0) &&
@@ -156,14 +156,14 @@ function initModel() {
 
 
         function setNeigbours(startX, startY, poSS, sizEE) {
-            var startXX;
-            var startYY;
+            let startXX;
+            let startYY;
             sizEE++;
             if (poSS==positioN.HOR) {
-                for(var i=-1; i<sizEE; i++) {
+                for(let i=-1; i<sizEE; i++) {
                     startXX=i+(startX-1);
                     if ((startXX>-1)&&(startXX<10)) {
-                        for (var j=-1; j<2; j++) {
+                        for (let j=-1; j<2; j++) {
                             startYY=j+(startY-1);
                             if ((startYY>-1)&&(startYY<10)) {
                                 self.ships[startXX][startYY].commonGranz++;
@@ -176,10 +176,10 @@ function initModel() {
                 }
             }
             if (poSS==positioN.VERT) {
-                for(var i=-1; i<sizEE; i++) {
+                for(let i=-1; i<sizEE; i++) {
                     startYY=i+(startY-1);
                     if ((startYY>-1)&&(startYY<10)) {
-                        for (var j=-1; j<2; j++) {
+                        for (let j=-1; j<2; j++) {
                             startXX=j+(startX-1);
                             if ((startXX>-1)&&(startXX<10)) {
                                 self.ships[startXX][startYY].commonGranz++;
@@ -198,14 +198,14 @@ function initModel() {
 
 
         function delNeigbours(startX, startY, poSS, sizEE) {
-            var startXX;
-            var startYY;
+            let startXX;
+            let startYY;
             sizEE++;
             if (poSS==positioN.HOR) {
-                for(var i=-1; i<sizEE; i++) {
+                for(let i=-1; i<sizEE; i++) {
                     startXX=i+(startX-1);
                     if ((startXX>-1)&&(startXX<10)) {
-                        for (var j=-1; j<2; j++) {
+                        for (let j=-1; j<2; j++) {
                             startYY=j+(startY-1);
                             if ((startYY>-1)&&(startYY<10)) {
                                 if (self.ships[startXX][startYY].commonGranz>0) self.ships[startXX][startYY].commonGranz--;
@@ -219,10 +219,10 @@ function initModel() {
                 }
             }
             if (poSS==positioN.VERT) {
-                for(var i=-1; i<sizEE; i++) {
+                for(let i=-1; i<sizEE; i++) {
                     startYY=i+(startY-1);
                     if ((startYY>-1)&&(startYY<10)) {
-                        for (var j=-1; j<2; j++) {
+                        for (let j=-1; j<2; j++) {
                             startXX=j+(startX-1);
                             if ((startXX>-1)&&(startXX<10)) {
                                 if (self.ships[startXX][startYY].commonGranz>0) self.ships[startXX][startYY].commonGranz--;
@@ -241,8 +241,8 @@ function initModel() {
 
         //Обновление экреного представления нашей модели
         this.updateViev = function () {
-            var i, j;
-            var id;
+            let i, j;
+            let id;
             for (i = 0; i < 10; i++) {
                 for (j = 0; j < 10; j++) {
                     cellObject.x = j+1;
@@ -279,8 +279,8 @@ function initModel() {
 
         //Удаление корабля
         this.deleteShip = function (startY, startX, lenGH) {
-            var poS=self.ships[startX - 1][startY - 1].pos;
-            var shipID=self.ships[startX - 1][startY - 1].shipID;
+            let poS=self.ships[startX - 1][startY - 1].pos;
+            let shipID=self.ships[startX - 1][startY - 1].shipID;
             if (poS == positioN.VERT) {
                 for (i = 0; i < lenGH; i++) {
                     self.ships[startX - 1][startY - 1+i].staT=statuS.FREE;
@@ -290,7 +290,7 @@ function initModel() {
                 delNeigbours(startX, startY, positioN.VERT, lenGH, shipID);
             }
             if (poS == positioN.HOR) {
-                for (var i = 0; i < lenGH; i++) {
+                for (let i = 0; i < lenGH; i++) {
                     self.ships[startX - 1 +i][startY - 1].staT=statuS.FREE;
                     self.ships[startX - 1 +i][startY - 1].siZe=4;
                     self.ships[startX - 1 +i][startY - 1].id=0;

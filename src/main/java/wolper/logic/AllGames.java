@@ -1,7 +1,7 @@
 package wolper.logic;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import wolper.dao.GamerDAO;
@@ -28,12 +28,13 @@ public class AllGames {
 
 
     private final GamerDAO gamerDAO;
-    private final SimpMessageSendingOperations messaging;
+    private final EventMessenger eventMessenger;
+
 
 
     @Async
-    public void createGamerByName(String name) {
-        Integer rating = gamerDAO.getRatingOnStartUp(name);
+    public void createGamerByName(@NonNull String name) {
+        int rating = gamerDAO.getRatingOnStartUp(name);
         listOfGamer.put(name, mintFreshGamer(name, rating));
         //Даем время вновьприбывшему подключиться к Вебсокету
         try {
@@ -41,61 +42,62 @@ public class AllGames {
         } catch (InterruptedException ie) {
             // игнорируем
         } finally {
-            messaging.convertAndSend("/topic/renewList", "newCreated");
+            eventMessenger.listOfPlayersChangedEvent();
         }
     }
 
-    public GamerSet getGamerByName(String name) {
+    public GamerSet getGamerByName(@NonNull String name) {
         return listOfGamer.get(name);
     }
     public Collection<GamerSet> getAllGamers() {
         return listOfGamer.values();
     }
-    public GamerSet updateGamer(GamerSet gamer) { return listOfGamer.put(gamer.getName(), gamer); }
+    public void updateGamer(@NonNull GamerSet gamer) { listOfGamer.put(gamer.getName(), gamer); }
 
-    public void removeByName(String name) {
+    public void removeByName(@NonNull String name) {
         informPartnerOnGoOut(name);
         deleteGamerByName(name);
     }
 
-    public void updateGamersAtomically(GamerSet gamerA, GamerSet gamerB) {
+    public void updateGamersAtomically(@NonNull GamerSet gamerA, @NonNull GamerSet gamerB) {
         synchronized (this) {
             listOfGamer.put(gamerA.getName(), gamerA);
             listOfGamer.put(gamerB.getName(), gamerB);
         }
     }
 
-    public boolean ifPlaying(String name) {
+    public boolean ifPlaying(@NonNull String name) {
         return !(Objects.isNull(listOfGamer.get(name)) || listOfGamer.get(name).isFree());
     }
 
-    public ShipList getShipListByName(String name) {
+    public ShipList getShipListByName(@NonNull String name) {
         return listOfShips.get(name);
     }
-    public void setShipListByName(String name, ShipList shipList) { listOfShips.put(name, shipList); }
+    public void setShipListByName(@NonNull String name, @NonNull ShipList shipList) { listOfShips.put(name, shipList); }
 
 
-    private static GamerSet mintFreshGamer(String name, Integer rating) {
+    private static GamerSet mintFreshGamer(@NonNull String name, int rating) {
         return GamerSet.builder().free(true).name(name).playWith("").invitedBy("").rating(rating).build();
     }
 
-    private void deleteGamerByName(String name) {
+    private void deleteGamerByName(@NonNull String name) {
         Optional.ofNullable(listOfGamer.remove(name))
                 .ifPresent(player -> {
                     gamerDAO.setRatingOnExit(name, player.getRating());
                     listOfShips.remove(name);
-                    messaging.convertAndSend("/topic/renewList", "reMoved");
+                    eventMessenger.listOfPlayersChangedEvent();
                 });
     }
 
-    private void informPartnerOnGoOut(String name) {
+    private void informPartnerOnGoOut(@NonNull String name) {
         Optional.ofNullable(listOfGamer.get(name))
                 .map(GamerSet::getPlayWith)
                 .map(listOfGamer::get)
                 .ifPresent(partner -> {
-                    GamerSet resetPartner = partner.toBuilder().free(true).playWith("").invitedBy("").killed(0).build();
+                    GamerSet resetPartner = partner.toBuilder().free(true)
+                            .playWith("").invitedBy("").killed(0).build();
                     updateGamer(resetPartner);
-                    messaging.convertAndSend("/topic/" + partner.getName(), "escaped&Ваш соперник сбежал!");
+                    eventMessenger.escapedPlayEvent(partner.getName());
                 });
     }
 

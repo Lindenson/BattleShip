@@ -12,7 +12,7 @@
     <decision-state id="restart">
         <on-entry>
             <evaluate expression="allGames.ifPlaying(currentUser.name)" result="flowScope.alreadyPlaying"/>
-            <evaluate expression="gamerBuss.listOfPlayersChangedEvent()"/>
+            <evaluate expression="messenger.listOfPlayersChangedEvent()"/>
         </on-entry>
 
         <if test="flowScope.alreadyPlaying"

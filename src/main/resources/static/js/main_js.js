@@ -1,18 +1,18 @@
 //КОНСТАНТЫ ДЛЯ РАБОТЫ ПРОГРАММЫ
 //Размер клеточки
-var forDivBox= 50;
+let forDivBox= 50;
 //Погрешность позиционирования
-var forDivBoxDela= 25;
+let forDivBoxDela= 25;
 //Считаем сколько мы расставили кораблей 
-var goFuther= 1;
+let goFuther= 1;
 
 
 //Определяем браузер
-var is_chrome = navigator.userAgent.indexOf('Chrome') > -1;
-var is_explorer = navigator.userAgent.indexOf('MSIE') > -1;
-var is_firefox = navigator.userAgent.indexOf('Firefox') > -1;
-var is_safari = navigator.userAgent.indexOf("Safari") > -1;
-var is_opera = navigator.userAgent.toLowerCase().indexOf("op") > -1;
+let is_chrome = navigator.userAgent.indexOf('Chrome') > -1;
+let is_explorer = navigator.userAgent.indexOf('MSIE') > -1;
+let is_firefox = navigator.userAgent.indexOf('Firefox') > -1;
+let is_safari = navigator.userAgent.indexOf("Safari") > -1;
+let is_opera = navigator.userAgent.toLowerCase().indexOf("op") > -1;
 if ((is_chrome)&&(is_safari)) {is_safari=false;}
 if ((is_chrome)&&(is_opera)) {is_chrome=false;}
 
