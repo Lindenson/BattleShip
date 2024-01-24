@@ -286,7 +286,7 @@ function initMamaSTOMP() {
         }
         if (strStartsWith(incoming.body,myName()+"&invitedFail")) {
             let otherSide=incoming.body.split("&")[2];
-            alertMy('Приглашение к '+otherSide +' не состоялось (отвергнуто)!', function () {});
+            alertMy('Приглашение к '+otherSide +' отвергнуто!', function () {});
             return;
         }
         if (strStartsWith(incoming.body,myName()+"&invitedDone")) {
@@ -345,32 +345,45 @@ function drawMamaTable() {
                             search: "Найти:",
                             zeroRecords: "Не найдено"
                         },
-                        columns: [
-                            {"title": 'Кто', "contentPadding": "i", className: "dt-body-left"},
-                            {"title": 'С кем', "contentPadding": "i", className: "dt-body-left"},
-                            {"title": 'Играет', "contentPadding": "i", className: "dt-body-left"},
-                            {"title": 'Рейтинг', "contentPadding": "i", className: "dt-body-left"}
-                        ],
                         columnDefs: [{
+                            title: '<i class="bi-person-arms-up"></i>',
                             "render": function (data, type, row) {
                                 return '<b style="color: navy">' + data + '</b>';
                             },
+                            className: 'dt-body-left',
+                            "width": "40%",
                             "targets": 0
                         },
                             {
-                                "render": function (data, type, row) {
-                                    if (data == "true") return '<b style="color: green">Нет</b>';
-                                    return '<b style="color: red">Да</b>';
-                                },
-                                "targets": 2
-                            },
-                            {
+                                title: '<i class="bi-person-arms-up"></i>',
                                 "render": function (data, type, row) {
                                     if (data == "nobody") return '<b style="color: green">...</b>';
                                     return '<b style="color: red">' + data + '</b>';
                                 },
+                                className: 'dt-body-left',
+                                "width": "40%",
                                 "targets": 1
-                            }]
+                            },
+                            {
+                                title: '<i class="bi-pin-fill"></i>',
+                                "render": function (data, type, row) {
+                                    if (data == "true") return '<b style="color: green">Нет</b>';
+                                    return '<b style="color: red">Да</b>';
+                                },
+                                className: 'dt-body-left',
+                                "width": "10%",
+                                "targets": 2
+                            },
+                            {
+                                title: '<i class="bi-piggy-bank"></i>',
+                                "render": function (data, type, row) {
+                                    return '<b style="color: navy">' + data + '</b>';
+                                },
+                                className: 'dt-body-left',
+                                "width": "10%",
+                                "targets": 3
+                            }
+                        ],
                     });
                     //Устанавливаем обработчики нажатия ее строк (кроме заголовка)
                     $('#allGamersTable tbody').on('click', 'tr', function() {
@@ -386,8 +399,6 @@ function drawMamaTable() {
                             initSTOMP.resultLink.send("/app/infoExchange", {"persistent":"true"}, "invite&" + myName() + "&" + nameHis);
                         });
                     });
-                    //и открываемся
-                    $("#allGamersTable").css("visibility", "visible");
                 }
                     gamersListTable.clear().rows.add(gamersList).draw();
             }
