@@ -9,8 +9,11 @@
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
     <link rel="stylesheet" href="/js/home_style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
     <title>Home</title>
 </head>
 
@@ -19,7 +22,8 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12 d-none d-lg-flex d-xl-flex d-xxl-flex" style="background-color: #8ba3b2">
-            <svg style="float: left; position: relative" width="400" xmlns="http://www.w3.org/2000/svg" height="200" viewBox="0 0 424 424" >
+            <svg style="float: left; position: relative" width="400" xmlns="http://www.w3.org/2000/svg" height="200"
+                 viewBox="0 0 424 424">
                 <path id="path16"
                       d="m151.5 40.5l6-11.5 0.5 0.5q0.5 0.5 0.75 1.5t2.75 1.75 10.5 1.25 9.5
                       0.75 2.25 1.75 1.5 2.75l0.75 1.25-2.5-0.5q-2.5-0.5-3-1t-9 0-12.5 0.25-5.75
@@ -73,23 +77,21 @@
     <div class="row">
         <div id="login" class="col-10 offset-1 col-lg-4 offset-lg-4 my-5 px-3 py-3">
             <form th:action="@{/login}" method="post">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Имя</label>
-                    <input type="text" class="form-control" name="username" id="username" aria-describedby="text">
-                    <div style="color: #c5ced7" id="textHelp" class="form-text">Убедитель, что вы не залогинены на другом устройстве</div>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Пароль</label>
-                    <input type="password" class="form-control" id="password" name="password">
-                </div>
-                <button type="submit" class="btn btn-primary">Войти</button>
-                <a href="home" class="btn btn-primary" style="display:
-                            inline-block; margin:5px" role="button">Домой</a>
-                <div>
-                    <input type="hidden"
-                           name="${_csrf.parameterName}"
-                           value="${_csrf.token}"/>
-                </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Имя</label>
+                        <input type="text" class="form-control" name="username" id="username" aria-describedby="text">
+                            <div style="color: #c5ced7" id="textHelp" class="form-text">Убедитель, что вы не залогинены на
+                                другом устройстве
+                            </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password">
+                        <br/>
+                        <button type="submit" class="btn btn-primary">Войти</button>
+                        <a href="home" class="btn btn-primary" style="display:
+                                    inline-block; margin:5px" role="button">Домой</a>
+                    </div>
             </form>
         </div>
     </div>

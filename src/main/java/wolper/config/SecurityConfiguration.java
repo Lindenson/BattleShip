@@ -3,7 +3,6 @@ package wolper.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistry;
@@ -33,10 +32,6 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return
         http
-                //Для доступности контроллера СВОМПа
-                .csrf(Customizer.withDefaults())
-                .cors(Customizer.withDefaults())
-                //Все остальное
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/game")
@@ -44,8 +39,8 @@ public class SecurityConfiguration {
                         .failureHandler(new SecurityErrorHandler())
                 )
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/", "/home", "/login", "/register", "success", "js/**", "/plugins/**",
-                                "/webjars/**", "/double_reg_final/**", "/double_reg/**",
+                        .requestMatchers("/", "/home", "/login", "/register", "success",
+                                "js/**", "/plugins/**","/double_reg_final/**", "/double_reg/**",
                                 "/regerror", "/errors")
                         .permitAll()
                         .anyRequest().authenticated()

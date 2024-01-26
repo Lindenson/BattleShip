@@ -14,7 +14,7 @@ function initFightModel() {
 
 function sendMyNextStep(cell){
         cellObject.fromId(cell);
-        const url_to_send = "/rest/doMove/" + myName() + "/" + yourPartner;
+        const url_to_send = "/rest/move/" + myName() + "/" + yourPartner;
         const data_to_sent = {x: cellObject.x, y: cellObject.y};
         const step_data = JSON.stringify(data_to_sent);
         yourStep=false;
@@ -46,9 +46,14 @@ function sendMyNextStep(cell){
                     alertMy("Поздравляем Вас с победой!",
                         function () {goNextStep("restartGame");}, true);
                     break;
+                case "error" :
+                    yourStep=false;
+                    setPageHeader('Ошибка!');
+                    alertMy(x[1], ()=> goNextStep("restartGame"), true);
+                    break;
                 default :
                     yourStep=true;
-                    setPageHeader('Ходите Вы.... (прошлый ход не принят из-за нарушения безопасности!)');
+                    setPageHeader('Ходите Вы.... (прошлый ход не принят из-за проблем с сетью!)');
             }},
             function () {},
             function (jqXHR, textStatus, errorThrown) {

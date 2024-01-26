@@ -87,13 +87,11 @@
                 <div class="mb-3">
                     <label for="password2" class="form-label">Пароль</label>
                     <input type="password" class="form-control" id="password2" name="password2">
+                    <br/>
+                    <button type="submit" class="btn btn-primary">Войти</button>
+                    <a href="home" class="btn btn-primary" style="display:
+                                inline-block; margin:5px" role="button">Домой</a>
                 </div>
-                <button type="submit" class="btn btn-primary">Войти</button>
-                <a href="home" class="btn btn-primary" style="display:
-                            inline-block; margin:5px" role="button">Домой</a>
-                <input type="hidden"
-                   name="${_csrf.parameterName}"
-                   value="${_csrf.token}" />
             </form>
         </div>
     </div>

@@ -1,5 +1,6 @@
 package wolper.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 
 @Repository
+@Slf4j
 public class GamerDAO {
 
     public GamerDAO(NamedParameterJdbcTemplate template, PasswordEncoder passwordEncoder) {
@@ -91,7 +93,7 @@ public class GamerDAO {
             template.update(ifQuery, parameterSource);
         }
         catch (DataAccessException e) {
-            throw new LogicException("Ошибка сохраниения пользователя в БД", e.getMessage());
+            log.error("Read user info error: {}", e.getMessage());
         }
     }
 
@@ -104,7 +106,8 @@ public class GamerDAO {
             result = template.queryForObject(ifQuery, parameters, Integer.class);
         }
         catch (DataAccessException e) {
-            throw new LogicException("Ошибка сохраниения пользователя в БД", e.getMessage());
+            log.error("Save user info error: {}", e.getMessage());
+            return 0;
         }
         return result;
     }

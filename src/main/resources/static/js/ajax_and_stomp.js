@@ -1,17 +1,19 @@
 
 //ВСЕ ДЛЯ СТОМПА И АЯКСА
 
-function initSTOMP(urlToGo, urlOnExpire) {
-
-    //Отладка стомпа
-    let DEBUG_STOMP= false;
-
-    //Проверка поддержки
-    checkSupport();
-
-    //запуск
+function initSTOMP(urlToGo) {
     initSTOMP.url=urlToGo;
+
+    let DEBUG_STOMP= false;
+    if (checkSupport()) return;
     connect();
+
+
+    //Обработка ошибок делает реконнект 3 раза - а потом сдаеться и выходит их игры
+    function stompError(error) {
+        console.log('Broker reported error: ' + error.headers['message']);
+        console.log('Additional details: ' + error.body);
+    }
 
     //Отладка стомпа
     function onDebug(m) {
@@ -26,30 +28,25 @@ function initSTOMP(urlToGo, urlOnExpire) {
             console.log("BROWSER NOT SUPPORTED");
             alert("Загрузите игру в браузере с поддержкой современных функций (Веб Соккет в т.ч.)");
             window.location = window.location.host;
+            return false;
         }
-    }
-
-    //Обработка ошибок делает реконнект 3 раза - а потом сдаеться и выходит их игры
-    initSTOMP.stompError = function (error) {
-        console.log('Broker reported error: ' + error.headers['message']);
-        console.log('Additional details: ' + error.body);
     }
 
     //Коннект и реконнект с настройкой опций
     function connect() {
         let token = $("meta[name='_csrf']").attr("content");
         let header = $("meta[name='_csrf_header']").attr("content");
-        let headers = {}; [header] = token;
+        let headers = {}; headers[header] = token;
         initSTOMP.client = new StompJs.Client({
             brokerURL: initSTOMP.url,
-            connectHeaders: headers,
             debug: onDebug,
+            connectHeaders: headers,
             reconnectDelay: 5000,
-            heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000,
+            heartbeatIncoming: 10000,
+            heartbeatOutgoing: 10000,
         });
         initSTOMP.client.onConnect = initSTOMP.callback;
-        initSTOMP.client.onStompError = initSTOMP.stompError;
+        initSTOMP.client.onStompError = stompError;
         initSTOMP.client.activate();
     }
 }
@@ -61,7 +58,7 @@ function initSTOMP(urlToGo, urlOnExpire) {
 //ВСЕ ДЛЯ АЯКСА
 
 // Колбеки: 1 - обрадотка полученной информации, 2 - по завершении получения, 3 - обработка ошибок
-function sendAJAXget (URLserver, callback1, callback2, callback3) {
+function sendAJAXget (URLserver, on_success, on_complete, on_error) {
     initAJAXforSpring();
     $("body").css('cursor','wait !important; z-index: 999; height: 100%; width: 100%;');
     $.ajax({
@@ -70,14 +67,14 @@ function sendAJAXget (URLserver, callback1, callback2, callback3) {
         dataType: "json",
         contentType: "application/json; charset=utf-8",
         error: function(jqXHR, textStatus, errorThrown) {
-            callback3(jqXHR, textStatus, errorThrown);
+            on_error(jqXHR, textStatus, errorThrown);
         },
         success: function (result) {
-            callback1(result);
+            on_success(result);
         },
         complete:
             function() {
-                callback2();
+                on_complete();
                 $('body').css('cursor', 'default');
             }
     });
@@ -85,7 +82,7 @@ function sendAJAXget (URLserver, callback1, callback2, callback3) {
 
 
 // Колбеки: 1 - обрадотка полученной информации, 2 - по завершении получения, 3 - обработка ошибок
-function  sendAJAXpost (URLserver, toSend, callback1, callback2, callback3) {
+function  sendAJAXpost (URLserver, toSend, on_success, on_complete, on_error) {
     initAJAXforSpring();
     $("body").css('cursor','wait !important; z-index: 999; height: 100%; width: 100%;');
     $.ajax({
@@ -95,14 +92,14 @@ function  sendAJAXpost (URLserver, toSend, callback1, callback2, callback3) {
         data: toSend,
         dataType: "json",
         error: function(jqXHR, textStatus, errorThrown) {
-            callback3(jqXHR, textStatus, errorThrown);
+            on_error(jqXHR, textStatus, errorThrown);
         },
         success: function (result) {
-            callback1(result);
+            on_success(result);
         },
         complete:
             function() {
-                callback2();
+                on_complete();
                 $('body').css('cursor', 'default');
             }
     });
@@ -124,6 +121,7 @@ function initAJAXforSpring() {
 //Заготовочка для обработки ошибок
 const ajaxErrorMessage = function (jqXHR, textStatus, errorThrown) {
     alert("Игровые данные не получены с сервера: ошибка интренета или истек таймаут Вашей сессии");
+    console.log(textStatus, errorThrown)
 };
 
 

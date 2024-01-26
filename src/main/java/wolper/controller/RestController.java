@@ -1,17 +1,20 @@
 package wolper.controller;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import wolper.domain.BoardOfShips;
 import wolper.domain.GamerSet;
+import wolper.domain.ShipList;
 import wolper.domain.StepsMe;
 import wolper.logic.*;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
-
+import java.util.Objects;
 
 
 //Рест контроллеры для передачи игровой инфорамации
@@ -28,57 +31,58 @@ public class RestController {
 
 
         //Контроллер сохранения расстановки кораблей
-        @PostMapping("/{nameGamer}/modelBoards")
+        @PostMapping("/update/{gamer}")
         @ResponseBody
-        public BoardOfShips saveGamerChoice(@PathVariable String nameGamer, @RequestBody BoardOfShips boOfS) {
-            shipMapper.detectSips(nameGamer, boOfS);
-            crossGamerInfoBuss.informPartnerOfFinishedSetUp(nameGamer);
-            return boOfS;
-        }
-
-
-        //Тестовый контроллер сервис предоставляет отладочную информвцию (и заодно можно подглядкть корабли соперника)
-        @GetMapping("/test/{name}")
-        @ResponseBody
-        public List<?> listGamerChoice(@PathVariable String name) {
-            return allGames.getShipListByName(name).smallSipList;
+        public ShipList update(@PathVariable String gamer, @RequestBody @Nullable BoardOfShips boOfS) {
+            if (Objects.isNull(boOfS)) {
+                ShipList ships = allGames.getShipListByName(gamer);
+                return ships;
+            }
+            ShipList shipsCreated = shipMapper.detectSips(gamer, boOfS);
+            if (Objects.nonNull(shipsCreated)) crossGamerInfoBuss.informPartnerOfFinishedSetUp(gamer);
+            else allGames.removeByName(gamer);
+            return shipsCreated;
         }
 
 
         //Контроллер выдачи информации об участниках поединка
-        @GetMapping("/gamerInfo")
+        @GetMapping("/gamers")
         @ResponseBody
-        public Collection<GamerSet> getGamersInfo() {
+        public Collection<GamerSet> gamers() {
             return allGames.getAllGamers();
         }
 
 
         //Контроллер для приема акцепта приглашения поиграть
-        @GetMapping("/invitationAccepted/{acceptedBy}")
+        @PostMapping("/accept/{from}/{to}")
         @ResponseBody
-        public String[] getAccepted(@PathVariable String acceptedBy) {
-            String [] names = acceptedBy.split("&");
-            if (names[0].equals("accepted")) {
-                crossGamerInfoBuss.acceptInvitation(names[1], names[2]);
-            }
-            if (names[0].equals("rejected")) {
-                crossGamerInfoBuss.rejectInvitation(names[1], names[2]);
-            }
+        public String[] accepted(@PathVariable String from, @PathVariable String to) {
+            crossGamerInfoBuss.acceptInvitation(from, to);
             return new String[] {"inv","OK"};
         }
 
 
-        //Контроллер для приема ходов соперников
-        @PostMapping("/doMove/{attacker}/{suffer}")
+        //Контроллер для отказа в приглашении поиграть
+        @PostMapping("/reject/{from}/{to}")
         @ResponseBody
-        public String [] getMoves(@PathVariable(value = "attacker") String attacker,
-                                  @PathVariable(value = "suffer") String suffer,
-                                  @RequestBody StepsMe step, Principal principal)
+        public String[] rejected(@PathVariable String from, @PathVariable String to) {
+            crossGamerInfoBuss.rejectInvitation(from, to);
+            return new String[] {"rej","OK"};
+        }
+
+        //Контроллер для приема ходов соперников
+        @PostMapping("/move/{from}/{to}")
+        @ResponseBody
+        public String [] move(@PathVariable(value = "from") String from,
+                                  @PathVariable(value = "to") String to,
+                                  @RequestBody @NotNull StepsMe step, Principal principal)
         {
             String name = principal.getName();
             //Безопасность. Проверяем, не фальсифицирован ли ход
-            if (!name.equals(attacker)) return new String[] {"you are a cheater", "error"};
-            String hit=crossGamerInfoBuss.doNextMove(attacker, suffer, step.x(), step.y());
+            if (!name.equals(from)) return new String[] {"error", "вы жулик"};
+            String hit=crossGamerInfoBuss.doNextMove(from, to, step.x(), step.y());
+            if (hit.equals("error")) return new String[] {hit,"ваш ход не принят"};
+
             return new String[] {hit,"OK"};
         }
 }

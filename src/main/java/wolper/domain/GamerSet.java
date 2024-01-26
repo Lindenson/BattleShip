@@ -3,6 +3,7 @@ package wolper.domain;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 
 @Builder(toBuilder = true)
 @Getter
@@ -20,7 +21,24 @@ public class GamerSet {
     public static GamerSet addKilled(GamerSet source)  {
         return source.toBuilder().killed(source.killed + 1).build();
     }
-    public boolean killedEnough() { return killed > ALL_SHIPS_CHECKS;}
+
+    public boolean ifKilledEnough() { return killed > ALL_SHIPS_CHECKS;}
+
+    public static GamerSet withAddRating(@NonNull GamerSet base) {
+        return base.toBuilder().free(true)
+                .playWith("").invitedBy("").killed(0).rating(base.getRating() + 1).build();
+    }
+
+    public static GamerSet withUntouchedRating(@NonNull GamerSet base) {
+        return base.toBuilder().free(true)
+                .playWith("").invitedBy("").killed(0).build();
+    }
+
+    public static GamerSet freshGamerInstance(@NonNull String name, int rating) {
+        return GamerSet.builder().free(true).name(name).playWith("")
+                .invitedBy("").rating(rating).build();
+    }
+
 }
 
 

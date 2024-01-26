@@ -1,5 +1,6 @@
 package wolper.logic;
 
+import jakarta.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -35,10 +36,10 @@ public class AllGames {
     @Async
     public void createGamerByName(@NonNull String name) {
         int rating = gamerDAO.getRatingOnStartUp(name);
-        listOfGamer.put(name, mintFreshGamer(name, rating));
+        listOfGamer.put(name, GamerSet.freshGamerInstance(name, rating));
         //Даем время вновьприбывшему подключиться к Вебсокету
         try {
-            TimeUnit.SECONDS.sleep(1000);
+            TimeUnit.MILLISECONDS.sleep(500);
         } catch (InterruptedException ie) {
             // игнорируем
         } finally {
@@ -59,10 +60,10 @@ public class AllGames {
         deleteGamerByName(name);
     }
 
-    public void updateGamersAtomically(@NonNull GamerSet gamerA, @NonNull GamerSet gamerB) {
+    public void updateGamersAtomically(@Nullable GamerSet gamerA, @Nullable GamerSet gamerB) {
         synchronized (this) {
-            listOfGamer.put(gamerA.getName(), gamerA);
-            listOfGamer.put(gamerB.getName(), gamerB);
+            if(Objects.nonNull(gamerA)) listOfGamer.put(gamerA.getName(), gamerA);
+            if(Objects.nonNull(gamerB)) listOfGamer.put(gamerB.getName(), gamerB);
         }
     }
 
@@ -74,11 +75,6 @@ public class AllGames {
         return listOfShips.get(name);
     }
     public void setShipListByName(@NonNull String name, @NonNull ShipList shipList) { listOfShips.put(name, shipList); }
-
-
-    private static GamerSet mintFreshGamer(@NonNull String name, int rating) {
-        return GamerSet.builder().free(true).name(name).playWith("").invitedBy("").rating(rating).build();
-    }
 
     private void deleteGamerByName(@NonNull String name) {
         Optional.ofNullable(listOfGamer.remove(name))

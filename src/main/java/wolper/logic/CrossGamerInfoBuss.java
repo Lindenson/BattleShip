@@ -77,19 +77,15 @@ public class CrossGamerInfoBuss {
                     eventMessanger.killedPlayEvent(victim, x, y);
                     return "killed";
             }
-        return "";
+        return "error";
     }
 
     private void updateRatings(@NonNull String attacker, @NonNull String victim) {
-        GamerSet attackerGamer = allGames.getGamerByName(attacker);
-        GamerSet victimGamer = allGames.getGamerByName(victim);
-
-        GamerSet newAttacker = attackerGamer.toBuilder().free(true)
-                .playWith("").invitedBy("").rating(attackerGamer.getRating() + 1).build();
-        GamerSet newVictim = victimGamer.toBuilder().free(true)
-                .playWith("").invitedBy("").rating(attackerGamer.getRating()).build();
-
-        allGames.updateGamersAtomically(newAttacker, newVictim);
+        GamerSet attackerGamer = Optional.of(attacker).map(allGames::getGamerByName)
+                .map(GamerSet::withAddRating).orElse(null);
+        GamerSet victimGamer = Optional.of(victim).map(allGames::getGamerByName)
+                .map(GamerSet::withAddRating).orElse(null);
+        allGames.updateGamersAtomically(attackerGamer, victimGamer);
         eventMessanger.listOfPlayersChangedEvent();
     }
 
@@ -114,9 +110,12 @@ public class CrossGamerInfoBuss {
         return false;
     }
 
-    private void updateSidesOfGame(@NonNull String from, @NonNull String to, GamerSet invitee, GamerSet inviter) {
+    private void updateSidesOfGame(@NonNull String from, @NonNull String to,
+                                   @NonNull GamerSet invitee, @NonNull GamerSet inviter)
+    {
         GamerSet inviteeNew = invitee.toBuilder().playWith(from).free(false).build();
         GamerSet inviterNew = inviter.toBuilder().free(false).playWith(to).build();
+
         allGames.updateGamersAtomically(inviterNew, inviteeNew);
         eventMessanger.listOfPlayersChangedEvent();
     }

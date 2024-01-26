@@ -240,8 +240,8 @@ function insertDiv(myX, myY, widTH, myPos) {
 //Отправлям сформированную модель на сервер
 function sendJSONtoServer() {
     let toSend='{"shipLines":'+JSON.stringify(Model.ships)+'}';
-    sendAJAXpost ("/rest/"+myName()+"/modelBoards", toSend, function (x){},
-        function (){goNextStep('play');}, ajaxErrorMessage)
+    sendAJAXpost ("/rest/update/"+myName(), toSend, ()=> console.log('well saved' ),
+        ()=>goNextStep('play'), ajaxErrorMessage)
 }
 
 
@@ -265,7 +265,7 @@ function initMamaSTOMP() {
     $("body").css('cursor','wait !important; z-index: 999; height: 100%; width: 100%;');
 
 
-     initSTOMP('ws://'+window.location.host + '/data', '/');
+     initSTOMP('ws://'+window.location.host + '/data');
 
     //Подписались на обмен сообщениями по добавлению и уходу игроков
     let handleListOfUsers = function (incoming) {
@@ -323,7 +323,7 @@ function drawListGamersTable() {
                 setDataForTable();
             };
 
-            sendAJAXget("/rest/gamerInfo", callback, function () {}, function () {});
+            sendAJAXget("/rest/gamers", callback, function () {}, function () {});
 
             function setDataForTable() {
                 if (tableInit) {
@@ -428,27 +428,22 @@ function inviteShowDialog(inviter) {
             //Отправляем акцепт приглашения
             unbindAndCloseInviteDialog();
             agreedTo = newInviter;
-            let toSend="accepted&"+ newInviter+"&"+myName();
-            yourPartner=names[2];
-            sendAJAXget("/rest/invitationAccepted/"+toSend, function (x) {},
-                function () {}, ajaxErrorMessage);
-
+            sendAJAXpost("/rest/accept/"+newInviter+"/"+myName(), {},
+                ()=> console.log('well accepted' ), ()=> {}, ajaxErrorMessage);
         });
         $('#modalDialogInvite').find("#rejectInviteButton").on('click', function() {
 
             //Отправляем режект приглашения
             unbindAndCloseInviteDialog();
-            let toSend="rejected&"+ newInviter+"&"+myName();
-            sendAJAXget("/rest/invitationAccepted/"+toSend, function (x) {},
-                function () { }, ajaxErrorMessage);
+            sendAJAXpost("/rest/reject/"+newInviter+"/"+myName(), {},
+                ()=> console.log('well rejected' ), ()=> {});
         });
         inviteDialog.show();
 
     } else {
         //Если уже кем то приглашены - отправляем режект приглашения (можно усложнить алгоритм... потом)
-        let toSend="rejected&"+ newInviter+"&"+myName();
-        sendAJAXget("/rest/invitationAccepted/"+toSend, function (x) {},
-            function () {}, ajaxErrorMessage);
+        sendAJAXpost("/rest/reject/"+newInviter+"/"+myName(), {},
+            ()=> console.log('well rejected' ), ()=> {}, ajaxErrorMessage);
     }
 }
 
@@ -580,11 +575,8 @@ function preventMultiEntrance() {
 function clearInviteAfterTimeout() {
     return setTimeout(() => {
         if (!iPlay && invitedBy!=='') {
-            let toSend = "rejected&" + invitedBy + "&" + myName();
-            sendAJAXget("/rest/invitationAccepted/" + toSend, function (x) {
-                },
-                function () {
-                }, ajaxErrorMessage);
+            sendAJAXpost("/rest/reject/"+invitedBy+"/"+myName(), {},
+                ()=> console.log('well rejected' ), ()=> {}, ajaxErrorMessage);
             unbindAndCloseInviteDialog();
         }
     }, invitationTimeOut);
