@@ -6,8 +6,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableAsync
-public class SeafightApplication {
+public class BattleShip {
     public static void main(String[] args) {
-        SpringApplication.run(SeafightApplication.class, args);
+        SpringApplication.run(BattleShip.class, args);
     }
 }

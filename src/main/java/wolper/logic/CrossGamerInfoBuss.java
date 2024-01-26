@@ -34,8 +34,11 @@ public class CrossGamerInfoBuss {
         final GamerSet invitee = allGames.getGamerByName(to);
 
         if (checkIfStatusChangeInBetween(from, to, inviter, invitee)) return;
-        updateSidesOfGame(from, to, invitee, inviter);
-        eventMessanger.inviteAcceptedEvent(from, to);
+        if (updateSidesOfGame(from, to, invitee, inviter)) {
+            eventMessanger.inviteAcceptedEvent(from, to);
+        } else  {
+            eventMessanger.inviteRejectedEvent(from, to);
+        }
     }
 
     //Отклоняем приглашение
@@ -80,13 +83,21 @@ public class CrossGamerInfoBuss {
         return "error";
     }
 
-    private void updateRatings(@NonNull String attacker, @NonNull String victim) {
-        GamerSet attackerGamer = Optional.of(attacker).map(allGames::getGamerByName)
+    private void updateRatings(@NonNull String from, @NonNull String to) {
+        GamerSet gamerFrom = allGames.getGamerByName(from);
+        GamerSet gamerTo = allGames.getGamerByName(to);
+
+        GamerSet updatedFrom = Optional.ofNullable(gamerFrom)
                 .map(GamerSet::withAddRating).orElse(null);
-        GamerSet victimGamer = Optional.of(victim).map(allGames::getGamerByName)
+        GamerSet updatedTo = Optional.ofNullable(gamerTo)
                 .map(GamerSet::withAddRating).orElse(null);
-        allGames.updateGamersAtomically(attackerGamer, victimGamer);
-        eventMessanger.listOfPlayersChangedEvent();
+
+        if ((Objects.isNull(gamerFrom) || Objects.isNull(gamerTo)
+        || Objects.isNull(updatedFrom)) || Objects.isNull(updatedTo)) return;
+
+        if (allGames.tryUpdateGamersAtomically(gamerFrom, gamerTo, updatedFrom, updatedTo)) {
+            eventMessanger.listOfPlayersChangedEvent();
+        }
     }
 
     //Безопасность - проверяем не подделан ли запрос
@@ -110,14 +121,17 @@ public class CrossGamerInfoBuss {
         return false;
     }
 
-    private void updateSidesOfGame(@NonNull String from, @NonNull String to,
+    private boolean updateSidesOfGame(@NonNull String from, @NonNull String to,
                                    @NonNull GamerSet invitee, @NonNull GamerSet inviter)
     {
         GamerSet inviteeNew = invitee.toBuilder().playWith(from).free(false).build();
         GamerSet inviterNew = inviter.toBuilder().free(false).playWith(to).build();
 
-        allGames.updateGamersAtomically(inviterNew, inviteeNew);
-        eventMessanger.listOfPlayersChangedEvent();
+        if (allGames.tryUpdateGamersAtomically(invitee, inviter, inviterNew, inviteeNew)) {
+            eventMessanger.listOfPlayersChangedEvent();
+            return true;
+        }
+        else return false;
     }
 
     private boolean ifDisappearedSendError(@NonNull String from, @Nullable String to,

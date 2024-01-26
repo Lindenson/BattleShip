@@ -13,7 +13,6 @@ import wolper.domain.StepsMe;
 import wolper.logic.*;
 import java.security.Principal;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 
@@ -35,8 +34,7 @@ public class RestController {
         @ResponseBody
         public ShipList update(@PathVariable String gamer, @RequestBody @Nullable BoardOfShips boOfS) {
             if (Objects.isNull(boOfS)) {
-                ShipList ships = allGames.getShipListByName(gamer);
-                return ships;
+                return allGames.getShipListByName(gamer);
             }
             ShipList shipsCreated = shipMapper.detectSips(gamer, boOfS);
             if (Objects.nonNull(shipsCreated)) crossGamerInfoBuss.informPartnerOfFinishedSetUp(gamer);

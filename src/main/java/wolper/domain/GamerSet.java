@@ -2,11 +2,13 @@ package wolper.domain;
 
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
 @Builder(toBuilder = true)
 @Getter
+@EqualsAndHashCode
 public class GamerSet {
 
     public static final int ALL_SHIPS_CHECKS = 19;

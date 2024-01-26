@@ -1,6 +1,5 @@
 package wolper.logic;
 
-import jakarta.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -60,10 +59,18 @@ public class AllGames {
         deleteGamerByName(name);
     }
 
-    public void updateGamersAtomically(@Nullable GamerSet gamerA, @Nullable GamerSet gamerB) {
+    public boolean tryUpdateGamersAtomically(@NonNull GamerSet beforeA, @NonNull GamerSet beforeB,
+                                             @NonNull  GamerSet afterA, @NonNull  GamerSet afterB) {
         synchronized (this) {
-            if(Objects.nonNull(gamerA)) listOfGamer.put(gamerA.getName(), gamerA);
-            if(Objects.nonNull(gamerB)) listOfGamer.put(gamerB.getName(), gamerB);
+            GamerSet beforeGamerA = getGamerByName(beforeA.getName());
+            GamerSet beforeGamerB = getGamerByName(beforeB.getName());
+
+            if(Objects.isNull(beforeGamerA) || Objects.isNull(beforeGamerB)) return false;
+            if(!(beforeGamerA.equals(beforeA) && beforeGamerB.equals(beforeB))) return false;
+
+            updateGamer(afterA);
+            updateGamer(afterB);
+            return true;
         }
     }
 

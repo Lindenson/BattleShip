@@ -187,9 +187,9 @@ function getElsAt(top, left){
     return $("body").find(".items")
         .filter(function() {
             let centerYBox=$(this).offset().top+forDivBox/2;
-            centerXBox=$(this).offset().left+forDivBox/2;
-            centerYShip=top+forDivBox/2;
-            centerXShip=left+forDivBox/2;
+            let centerXBox=$(this).offset().left+forDivBox/2;
+            let centerYShip=top+forDivBox/2;
+            let centerXShip=left+forDivBox/2;
             let deltaY=Math.abs(centerYBox-centerYShip);
             let deltaX=Math.abs(centerXBox-centerXShip);
             return deltaX<forDivBoxDela

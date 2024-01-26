@@ -3,7 +3,6 @@ package wolper.logic;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import wolper.domain.BoardOfShips;
