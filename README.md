@@ -14,7 +14,7 @@
 - Spring 
 - Spring Security
 - REST
-- Webfolw
+- Webflow
 - Thymeleaf
 - Websocket/STOMP
 - JS
