@@ -40,7 +40,7 @@ public class EventMessenger {
         messaging.convertAndSend("/topic/" + to, "hitYou&" + x + "&" + y + "&killed");
     }
 
-    public void winPlayEvent(@NonNull String to, int x, int y){
+    public void gameOverPlayEvent(@NonNull String to, int x, int y){
         messaging.convertAndSend("/topic/" + to, "hitYou&" + x + "&" + y + "&defeated");
     }
 

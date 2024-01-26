@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ControllersSecurityTest {
+public class ControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -70,19 +70,19 @@ public class ControllersSecurityTest {
     @Test
     @WithMockUser
     public void authorizedRestGamers() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("/rest/gamerInfo")).andDo(print())
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/rest/gamers")).andDo(print())
                 .andExpect(MockMvcResultMatchers.content().json("[]"));
     }
 
     @Test
     @WithMockUser
     public void authorizedRestdoMove() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders.post("/rest/doMove/mama/papa")
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/rest/move/mama/papa")
                 .with(csrf())
                 .contentType("application/json")
                 .content("{\"x\": 5, \"y\": 7}"))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.content().json("[\"error\",\"you are a cheater\"]"));
+                .andExpect(MockMvcResultMatchers.content().json("[\"error\",\"вы жулик\"]"));
     }
 
     @Test

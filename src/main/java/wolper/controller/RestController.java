@@ -25,7 +25,7 @@ public class RestController {
 
         public final AllGames allGames;
         public final ShipMapper shipMapper;
-        public final CrossGamerInfoBuss crossGamerInfoBuss;
+        public final GameLogic crossGamerInfoBuss;
         public final SimpMessageSendingOperations messaging;
 
 
@@ -36,8 +36,12 @@ public class RestController {
             if (Objects.isNull(boOfS)) {
                 return allGames.getShipListByName(gamer);
             }
-            ShipList shipsCreated = shipMapper.detectSips(gamer, boOfS);
-            if (Objects.nonNull(shipsCreated)) crossGamerInfoBuss.informPartnerOfFinishedSetUp(gamer);
+            ShipList shipsCreated = shipMapper.map(boOfS);
+
+            if (Objects.nonNull(shipsCreated)) {
+                allGames.setShipListByName(gamer, shipsCreated);
+                crossGamerInfoBuss.informPartnerOfFinishedSetUp(gamer);
+            }
             else allGames.removeByName(gamer);
             return shipsCreated;
         }

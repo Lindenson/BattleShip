@@ -5,17 +5,17 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import wolper.domain.GamerSet;
+import wolper.domain.ShipList;
 
 import java.util.Objects;
 import java.util.Optional;
 
 
-@Service(value = "gamerBuss")
+@Service
 @RequiredArgsConstructor
-public class CrossGamerInfoBuss {
+public class GameLogic {
 
     private final AllGames allGames;
-    private final ShipMapper shipMapper;
     private final EventMessenger eventMessanger;
 
 
@@ -24,7 +24,7 @@ public class CrossGamerInfoBuss {
         final GamerSet inviter = allGames.getGamerByName(from);
         final GamerSet invitee = allGames.getGamerByName(to);
 
-        if (checkIfStatusChangeInBetween(from, to, inviter, invitee)) return;
+        if (ifNullOrBusySendReject(from, to, inviter, invitee)) return;
         eventMessanger.inviteEvent(from, to);
     }
 
@@ -33,8 +33,9 @@ public class CrossGamerInfoBuss {
         final GamerSet inviter = allGames.getGamerByName(from);
         final GamerSet invitee = allGames.getGamerByName(to);
 
-        if (checkIfStatusChangeInBetween(from, to, inviter, invitee)) return;
-        if (updateSidesOfGame(from, to, invitee, inviter)) {
+        if (ifNullOrBusySendReject(from, to, inviter, invitee)) return;
+
+        if (makeGamersPlayingOneAnother(from, to, invitee, inviter)) {
             eventMessanger.inviteAcceptedEvent(from, to);
         } else  {
             eventMessanger.inviteRejectedEvent(from, to);
@@ -46,25 +47,29 @@ public class CrossGamerInfoBuss {
         final GamerSet inviter = allGames.getGamerByName(from);
         final GamerSet invitee = allGames.getGamerByName(to);
 
-        if (ifDisappearedSendError(from, to, inviter, invitee)) return;
-        rejectIfNotPlaying(from, to, inviter, invitee);
+        if (ifNullSendRejectOrError(from, to, inviter, invitee)) return;
+        rejectIfNotYetPlaying(from, to, inviter, invitee);
     }
 
     //Объявляем, что расставили корабли
     public void informPartnerOfFinishedSetUp(@NonNull String from) {
         final GamerSet inviter = allGames.getGamerByName(from);
-        final String to = Optional.ofNullable(inviter).map(GamerSet::getPlayWith).orElse(null);
-        final GamerSet invitee = Optional.ofNullable(to).map(allGames::getGamerByName).orElse(null);
 
-        if (ifDisappearedSendError(from, to, inviter, invitee)) return;
+        final String to = Optional.ofNullable(inviter).map(GamerSet::getPlayWith).orElse(null);
+        final GamerSet invitee = Optional.ofNullable(to).map(allGames::getGamerByName)
+                .filter(it -> it.getPlayWith().equals(from)).orElse(null);
+
+        if (ifNullSendRejectOrError(from, to, inviter, invitee)) return;
+
         Objects.requireNonNull(to);
         eventMessanger.readyToPlayEvent(to);
     }
 
     //Ход соперника - проверка попадания - выдача поражения или победы
     public String doNextMove(@NonNull String attacker, @NonNull String victim, int x, int y) {
+
         if (checkMyRightToHit(attacker, victim))
-            switch (shipMapper.doHit(victim, y - 1, x - 1)) {
+            switch (doHit(victim, y - 1, x - 1)) {
                 case 0:
                     eventMessanger.missedPlayEvent(victim, x, y);
                     return "zero";
@@ -72,8 +77,8 @@ public class CrossGamerInfoBuss {
                     eventMessanger.hitPlayEvent(victim, x, y);
                     return "injured";
                 case 2:
-                    if (shipMapper.checkKillAll(victim)) {
-                        eventMessanger.winPlayEvent(victim, x, y);
+                    if (checkKillAll(victim)) {
+                        eventMessanger.gameOverPlayEvent(victim, x, y);
                         updateRatings(attacker, victim);
                         return "victory";
                     }
@@ -105,37 +110,39 @@ public class CrossGamerInfoBuss {
         final GamerSet inviter = allGames.getGamerByName(from);
         final GamerSet invitee = allGames.getGamerByName(to);
 
-        if (ifDisappearedSendError(from, to, inviter, invitee)) return false;
+        if (ifNullSendRejectOrError(from, to, inviter, invitee)) return false;
         return inviter.getPlayWith().equals(invitee.getName());
     }
 
-    private boolean checkIfStatusChangeInBetween(@NonNull String from, @NonNull String to,
-                                                 GamerSet inviter, GamerSet invitee)
+    private boolean ifNullOrBusySendReject(@NonNull String from, @NonNull String to,
+                                           @Nullable GamerSet inviter, @Nullable GamerSet invitee)
     {
-        if (ifDisappearedSendError(from, to, inviter, invitee)) return true;
+        if (ifNullSendRejectOrError(from, to, inviter, invitee)) return true;
 
+        Objects.requireNonNull(inviter);
+        Objects.requireNonNull(invitee);
         if (!(inviter.isFree() && invitee.isFree())) {
-            rejectIfNotPlaying(from, to, inviter, invitee);
+            rejectIfNotYetPlaying(from, to, inviter, invitee);
             return true;
         }
         return false;
     }
 
-    private boolean updateSidesOfGame(@NonNull String from, @NonNull String to,
-                                   @NonNull GamerSet invitee, @NonNull GamerSet inviter)
+    private boolean makeGamersPlayingOneAnother(@NonNull String from, @NonNull String to,
+                                                @NonNull GamerSet invitee, @NonNull GamerSet inviter)
     {
-        GamerSet inviteeNew = invitee.toBuilder().playWith(from).free(false).build();
-        GamerSet inviterNew = inviter.toBuilder().free(false).playWith(to).build();
+        GamerSet inviteeUpdated = invitee.toBuilder().playWith(from).free(false).build();
+        GamerSet inviterUpdated = inviter.toBuilder().free(false).playWith(to).build();
 
-        if (allGames.tryUpdateGamersAtomically(invitee, inviter, inviterNew, inviteeNew)) {
+        if (allGames.tryUpdateGamersAtomically(invitee, inviter, inviterUpdated, inviteeUpdated)) {
             eventMessanger.listOfPlayersChangedEvent();
             return true;
         }
         else return false;
     }
 
-    private boolean ifDisappearedSendError(@NonNull String from, @Nullable String to,
-                                           GamerSet inviter, GamerSet invitee)
+    private boolean ifNullSendRejectOrError(@NonNull String from, @Nullable String to,
+                                            @Nullable GamerSet inviter, @Nullable GamerSet invitee)
     {
         if (inviter == null && invitee == null) {
             eventMessanger.errorEvent(from);
@@ -154,8 +161,8 @@ public class CrossGamerInfoBuss {
         return false;
     }
 
-    private void rejectIfNotPlaying(@NonNull String from, @NonNull String to,
-                                    @NonNull GamerSet inviter, @NonNull GamerSet invitee)
+    private void rejectIfNotYetPlaying(@NonNull String from, @NonNull String to,
+                                       @NonNull GamerSet inviter, @NonNull GamerSet invitee)
     {
         //так как возможны множественные приглашения, то мы проверим
         //если еще не играют между собой
@@ -163,4 +170,31 @@ public class CrossGamerInfoBuss {
             eventMessanger.inviteRejectedEvent(from, to);
     }
 
+
+    private int doHit(@NonNull String name, int i, int j) {
+        ShipList shipList = allGames.getShipListByName(name);
+
+        for (ShipList.SmallSip smallSip : shipList.smallSipList) {
+            if (smallSip.contains(i,j)) {
+                if(smallSip.checkIfKilled()) {
+                    updateGamersScore(name);
+                    return 2;
+                }
+                updateGamersScore(name);
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    private void updateGamersScore(String name) {
+        GamerSet gamerByName = allGames.getGamerByName(name);
+        GamerSet gamerUpdated = GamerSet.addKilled(gamerByName);
+        allGames.updateGamer(gamerUpdated);
+    }
+
+    private boolean checkKillAll(String name){
+        GamerSet gamerSet = allGames.getGamerByName(name);
+        return (gamerSet.ifKilledEnough());
+    }
 }

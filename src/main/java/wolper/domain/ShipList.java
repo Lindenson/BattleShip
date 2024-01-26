@@ -2,16 +2,19 @@ package wolper.domain;
 
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+@ToString
 public class ShipList {
     public final List<SmallSip> smallSipList = new ArrayList<>();
     private static final Checks [] checks = Checks.values();
     public static EnumSet<Checks> getFreeSet() { return EnumSet.noneOf(ShipList.Checks.class); }
     public static Checks converter(int i, int j) { return checks[j+i*10]; }
+
+    @ToString
     public static class SmallSip {
 
         public SmallSip(int size, EnumSet<Checks> checkSet) {

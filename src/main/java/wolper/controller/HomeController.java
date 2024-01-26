@@ -22,7 +22,7 @@ import wolper.security.SessionService;
 @RequiredArgsConstructor
 public class HomeController {
     private final GamerDAO gamerDAO;
-    private final CrossGamerInfoBuss crossGamerInfoBuss;
+    private final GameLogic gameLogic;
     private final SessionService session;
 
 
@@ -106,7 +106,7 @@ public class HomeController {
         String[] names = name.split("&");
         //Полчено приглашение
         if (names[0].equals("invite")) {
-            crossGamerInfoBuss.inviteOneAnother(names[1], names[2]);
+            gameLogic.inviteOneAnother(names[1], names[2]);
         }
         //Todo!!! Сделать полноценный обмен сообщениями между игроками
     }
