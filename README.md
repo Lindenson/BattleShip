@@ -1,4 +1,4 @@
-# Sea Fight
+# BattleShip
 
 <img src="./fight.png" width=200/>
 
