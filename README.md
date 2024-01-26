@@ -10,13 +10,15 @@
 
 ## Technologies: 
 
-- Java+Spring 
+- Java
+- Spring 
 - Spring Security
-- Webfolw
-- STOMP
 - REST
-- JS (JQuery)
-- SockJS
+- Webfolw
+- Thymeleaf
+- Websocket/STOMP
+- JS
+- JQuery
 - Bootstrap
 
 
