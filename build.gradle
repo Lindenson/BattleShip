@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.1'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'jacoco'
 }
 
 group = 'com.wolper'
@@ -41,10 +42,29 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test', Test) {
+
+
+test {
     useJUnitPlatform()
     maxHeapSize = '1G'
     testLogging {
         events "passed"
     }
+    finalizedBy jacocoTestReport
 }
+jacocoTestReport {
+    dependsOn test
+    reports {
+            xml.required = false
+            csv.required = false
+            html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['wolper/domain/*',
+                              'wolper/logic/EventMessenger.class'])
+        })
+    }
+}
+

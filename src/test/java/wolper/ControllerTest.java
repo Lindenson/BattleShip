@@ -22,7 +22,6 @@ public class ControllerTest {
     private MockMvc mockMvc;
 
 
-
     @Test
     public void home() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders.get("/home")).andDo(print())
@@ -78,9 +77,9 @@ public class ControllerTest {
     @WithMockUser
     public void authorizedRestdoMove() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/rest/move/mama/papa")
-                .with(csrf())
-                .contentType("application/json")
-                .content("{\"x\": 5, \"y\": 7}"))
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content("{\"x\": 5, \"y\": 7}"))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.content().json("[\"error\",\"вы жулик\"]"));
     }
@@ -108,11 +107,20 @@ public class ControllerTest {
     @WithMockUser
     public void authorizedUpdate() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/rest/update/mama")
-                .contentType("application/json")
-                .content("{\"shipLines\" : [[{\"x\" : 5, \"y\" : 5, \"staT\" : 1, \"pos\" : 1, \"siZe\" : 3, \"commonGranz\" : 0, \"id\" : 1}]]}")
-                .with(csrf()))
+                        .contentType("application/json")
+                        .content("{\"shipLines\" : [[{\"x\" : 5, \"y\" : 5, \"staT\" : 1, \"pos\" : 1, \"siZe\" : 3, \"commonGranz\" : 0, \"id\" : 1}]]}")
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.content().json("{\"smallSipList\":[{\"checkSet\":[\"A1\",\"B1\",\"C1\"]}]}"));
+    }
+
+    @Test
+    @WithMockUser
+    public void authorizedUpdateWithNullData() throws Exception {
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/rest/update/mama")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
     }
 
     @Test
