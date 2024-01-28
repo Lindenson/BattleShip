@@ -8,14 +8,14 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.stereotype.Component;
-import wolper.logic.AllGames;
+import wolper.dao.GameDao;
 
 
 @Component
 @AllArgsConstructor
 public class SessionEventListener extends HttpSessionEventPublisher {
 
-    private final AllGames allGames;
+    private final GameDao gameDao;
     private final SessionRegistry sessionRegistry;
 
     //Установка таймаута сессии и определение имени пользователя
@@ -37,9 +37,8 @@ public class SessionEventListener extends HttpSessionEventPublisher {
         if (ud != null) {
             name=ud.getUsername();
             //Извещаем соперников что мы ушли
-            allGames.removeByName(name);
+            gameDao.removeGamerByName(name);
         }
-        //---
         super.sessionDestroyed(event);
     }
 }

@@ -63,6 +63,7 @@ jacocoTestReport {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it,
                     exclude: ['wolper/domain/*',
+                              'wolper/security/*',
                               'wolper/logic/EventMessenger.class'])
         })
     }

@@ -20,9 +20,9 @@ import java.util.Map;
 
 @Repository
 @Slf4j
-public class GamerDAO {
+public class GamerDao {
 
-    public GamerDAO(NamedParameterJdbcTemplate template, PasswordEncoder passwordEncoder) {
+    public GamerDao(NamedParameterJdbcTemplate template, PasswordEncoder passwordEncoder) {
         this.template = template;
         this.passwordEncoder = passwordEncoder;
     }

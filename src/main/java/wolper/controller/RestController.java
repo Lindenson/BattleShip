@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import wolper.dao.GameDao;
 import wolper.domain.BoardOfShips;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
@@ -23,7 +24,7 @@ import java.util.Objects;
 @RequestMapping(value = "/rest")
 public class RestController {
 
-        public final AllGames allGames;
+        public final GameDao gameDao;
         public final ShipMapper shipMapper;
         public final GameLogic crossGamerInfoBuss;
         public final SimpMessageSendingOperations messaging;
@@ -34,15 +35,15 @@ public class RestController {
         @ResponseBody
         public ShipList update(@PathVariable String gamer, @RequestBody @Nullable BoardOfShips boOfS) {
             if (Objects.isNull(boOfS)) {
-                return allGames.getShipListByName(gamer);
+                return gameDao.getShipListByName(gamer);
             }
             ShipList shipsCreated = shipMapper.map(boOfS);
 
             if (Objects.nonNull(shipsCreated)) {
-                allGames.setShipListByName(gamer, shipsCreated);
+                gameDao.updateShipListByName(gamer, shipsCreated);
                 crossGamerInfoBuss.informPartnerOfFinishedSetUp(gamer);
             }
-            else allGames.removeByName(gamer);
+            else gameDao.removeGamerByName(gamer);
             return shipsCreated;
         }
 
@@ -51,7 +52,7 @@ public class RestController {
         @GetMapping("/gamers")
         @ResponseBody
         public Collection<GamerSet> gamers() {
-            return allGames.getAllGamers();
+            return gameDao.getAllGamers();
         }
 
 

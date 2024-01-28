@@ -1,12 +1,11 @@
-package wolper.logic;
+package wolper.dao;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import wolper.dao.GamerDAO;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
+import wolper.logic.EventMessenger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,31 +13,27 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 
-//Класс объявлен как одиночка, так как все что он делает - это манипуляции с единственной на всю программу
-//базой "ин-мемори" данных об игроках и о ходе игры, хранящейся в конкурентных коллекциях
 
-@Service("allGames")
+@Service("gameDao")
 @RequiredArgsConstructor
-public class AllGames {
+public class GameDao {
 
-    //Это основная игровая информация, доступная для всех игроков и, следовательно,  многих потоков
     private static final ConcurrentMap<String, GamerSet> listOfGamer = new ConcurrentHashMap<>();
     private static final ConcurrentMap<String, ShipList> listOfShips = new ConcurrentHashMap<>();
 
 
 
-    private final GamerDAO gamerDAO;
+    private final GamerDao gamerDAO;
     private final EventMessenger eventMessenger;
 
 
 
-    @Async
     public void createGamerByName(@NonNull String name) {
         int rating = gamerDAO.getRatingOnStartUp(name);
         listOfGamer.put(name, GamerSet.freshGamerInstance(name, rating));
         //Даем время вновьприбывшему подключиться к Вебсокету
         try {
-            TimeUnit.MILLISECONDS.sleep(500);
+            TimeUnit.MILLISECONDS.sleep(100);
         } catch (InterruptedException ie) {
             // игнорируем
         } finally {
@@ -46,15 +41,11 @@ public class AllGames {
         }
     }
 
-    public GamerSet getGamerByName(@NonNull String name) {
-        return listOfGamer.get(name);
-    }
-    public Collection<GamerSet> getAllGamers() {
-        return listOfGamer.values();
-    }
+    public GamerSet getGamerByName(@NonNull String name) {return listOfGamer.get(name);}
+    public Collection<GamerSet> getAllGamers() { return listOfGamer.values(); }
     public void updateGamer(@NonNull GamerSet gamer) { listOfGamer.put(gamer.getName(), gamer); }
 
-    public void removeByName(@NonNull String name) {
+    public void removeGamerByName(@NonNull String name) {
         informPartnerOnGoOut(name);
         deleteGamerByName(name);
     }
@@ -81,7 +72,7 @@ public class AllGames {
     public ShipList getShipListByName(@NonNull String name) {
         return listOfShips.get(name);
     }
-    public void setShipListByName(@NonNull String name, @NonNull ShipList shipList) { listOfShips.put(name, shipList); }
+    public void updateShipListByName(@NonNull String name, @NonNull ShipList shipList) { listOfShips.put(name, shipList); }
 
     private void deleteGamerByName(@NonNull String name) {
         Optional.ofNullable(listOfGamer.remove(name))
@@ -93,13 +84,11 @@ public class AllGames {
     }
 
     private void informPartnerOnGoOut(@NonNull String name) {
-        Optional.ofNullable(listOfGamer.get(name))
+        Optional.ofNullable(getGamerByName(name))
                 .map(GamerSet::getPlayWith)
-                .map(listOfGamer::get)
+                .map(this::getGamerByName)
                 .ifPresent(partner -> {
-                    GamerSet resetPartner = partner.toBuilder().free(true)
-                            .playWith("").invitedBy("").killed(0).build();
-                    updateGamer(resetPartner);
+                    updateGamer(GamerSet.withUntouchedRating(partner));
                     eventMessenger.escapedPlayEvent(partner.getName());
                 });
     }

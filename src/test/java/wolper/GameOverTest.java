@@ -12,9 +12,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import wolper.domain.BoardOfShips;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
-import wolper.logic.AllGames;
+import wolper.dao.GameDao;
 import wolper.logic.EventMessenger;
 import wolper.logic.GameLogic;
+import wolper.logic.PlayerValidator;
 import wolper.logic.ShipMapper;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,11 +27,12 @@ import static org.mockito.Mockito.verify;
 
 //для одного теста, так как мы мокируем статические методы
 @SpringBootTest
-public class GameOverTest {
-
+class GameOverTest {
 
     @Mock
-    AllGames allGames;
+    PlayerValidator playerValidator;
+    @Mock
+    GameDao gameDao;
     @Mock
     ShipMapper shipMapper;
     @Mock
@@ -52,7 +54,7 @@ public class GameOverTest {
 
     @Test
     void doNextMoveAndWin() throws Exception {
-        when(allGames.getGamerByName(eq("mama")))
+        when(gameDao.getGamerByName(eq("mama")))
                 .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().playWith("daughter").build());
 
         GamerSet daughter = mock(GamerSet.class);
@@ -64,7 +66,7 @@ public class GameOverTest {
         mockStatic(GamerSet.class);
         when(GamerSet.addKilled(any())).thenReturn(daughter);
         when(GamerSet.withAddRating(any())).thenReturn(daughter);
-        when(allGames.getGamerByName(eq("daughter"))).thenReturn(daughter);
+        when(gameDao.getGamerByName(eq("daughter"))).thenReturn(daughter);
 
         ObjectMapper objectMapper = new ObjectMapper();
         BoardOfShips shipList = objectMapper.readValue(ships, BoardOfShips.class);
@@ -74,7 +76,7 @@ public class GameOverTest {
         ShipList.SmallSip smallSip = sList.smallSipList.stream().findFirst().orElse(null);
         ReflectionTestUtils.setField(sList, "smallSipList", List.of(smallSip));
 
-        when(allGames.getShipListByName(any())).thenReturn(sList);
+        when(gameDao.getShipListByName(any())).thenReturn(sList);
         gameLogic.doNextMove("mama", "daughter", 1, 7);
         gameLogic.doNextMove("mama", "daughter", 1, 8);
         gameLogic.doNextMove("mama", "daughter", 1, 9);
@@ -82,7 +84,7 @@ public class GameOverTest {
 
         assertEquals("victory", result);
         verify(eventMessenger).gameOverPlayEvent(to.capture(),anyInt(),anyInt());
-        verify(allGames).tryUpdateGamersAtomically(any(),any(),any(),any());
+        verify(gameDao).tryUpdateGamersAtomically(any(),any(),any(),any());
 
         assertEquals("daughter", to.getValue());
     }

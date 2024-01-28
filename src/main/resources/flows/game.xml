@@ -11,7 +11,7 @@
 
     <decision-state id="restart">
         <on-entry>
-            <evaluate expression="allGames.ifPlaying(currentUser.name)" result="flowScope.alreadyPlaying"/>
+            <evaluate expression="gameDao.ifPlaying(currentUser.name)" result="flowScope.alreadyPlaying"/>
             <evaluate expression="messenger.listOfPlayersChangedEvent()"/>
         </on-entry>
 
@@ -26,7 +26,7 @@
     </decision-state>
 
     <action-state id="loadData">
-        <evaluate expression="allGames.createGamerByName(currentUser.name)"/>
+        <evaluate expression="gameDao.createGamerByName(currentUser.name)"/>
         <evaluate expression="externalContext.nativeRequest.session.setAttribute('USER_GAMER_NAME', currentUser.name)"/>
         <transition on="success" to="start_game"/>
     </action-state>
@@ -40,7 +40,7 @@
     </view-state>
 
     <action-state id="exit">
-        <evaluate expression="allGames.removeByName(currentUser.name)"/>
+        <evaluate expression="gameDao.removeGamerByName(currentUser.name)"/>
         <transition on="success" to="stop"/>
     </action-state>
 

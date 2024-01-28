@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import wolper.dao.GameDao;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
 
@@ -15,54 +16,56 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GameLogic {
 
-    private final AllGames allGames;
-    private final EventMessenger eventMessanger;
-
+    private final GameDao gameDao;
+    private final EventMessenger eventMessenger;
+    private final PlayerValidator playerValidator;
 
     //Сватаемся
     public void inviteOneAnother(@NonNull String from, @NonNull String to) {
-        final GamerSet inviter = allGames.getGamerByName(from);
-        final GamerSet invitee = allGames.getGamerByName(to);
+        final GamerSet inviter = gameDao.getGamerByName(from);
+        final GamerSet invitee = gameDao.getGamerByName(to);
 
-        if (ifNullOrBusySendReject(from, to, inviter, invitee)) return;
-        eventMessanger.inviteEvent(from, to);
+        if (ifBusy(from, to, inviter, invitee)) return;
+
+        eventMessenger.inviteEvent(from, to);
     }
 
     //Соглашаемся поиграть
     public void acceptInvitation(@NonNull String from, @NonNull String to) {
-        final GamerSet inviter = allGames.getGamerByName(from);
-        final GamerSet invitee = allGames.getGamerByName(to);
+        final GamerSet inviter = gameDao.getGamerByName(from);
+        final GamerSet invitee = gameDao.getGamerByName(to);
 
-        if (ifNullOrBusySendReject(from, to, inviter, invitee)) return;
+        if (ifBusy(from, to, inviter, invitee)) return;
 
-        if (makeGamersPlayingOneAnother(from, to, invitee, inviter)) {
-            eventMessanger.inviteAcceptedEvent(from, to);
+        if (tryPlayTogether(from, to, invitee, inviter)) {
+            eventMessenger.inviteAcceptedEvent(from, to);
         } else  {
-            eventMessanger.inviteRejectedEvent(from, to);
+            eventMessenger.inviteRejectedEvent(from, to);
         }
     }
 
     //Отклоняем приглашение
     public void rejectInvitation(@NonNull String from, @NonNull String to) {
-        final GamerSet inviter = allGames.getGamerByName(from);
-        final GamerSet invitee = allGames.getGamerByName(to);
+        final GamerSet inviter = gameDao.getGamerByName(from);
+        final GamerSet invitee = gameDao.getGamerByName(to);
 
-        if (ifNullSendRejectOrError(from, to, inviter, invitee)) return;
+        if (playerValidator.ifAnyIsNotValid(from, to, inviter, invitee)) return;
+
         rejectIfNotYetPlaying(from, to, inviter, invitee);
     }
 
     //Объявляем, что расставили корабли
     public void informPartnerOfFinishedSetUp(@NonNull String from) {
-        final GamerSet inviter = allGames.getGamerByName(from);
+        final GamerSet inviter = gameDao.getGamerByName(from);
 
         final String to = Optional.ofNullable(inviter).map(GamerSet::getPlayWith).orElse(null);
-        final GamerSet invitee = Optional.ofNullable(to).map(allGames::getGamerByName)
+        final GamerSet invitee = Optional.ofNullable(to).map(gameDao::getGamerByName)
                 .filter(it -> it.getPlayWith().equals(from)).orElse(null);
 
-        if (ifNullSendRejectOrError(from, to, inviter, invitee)) return;
+        if (playerValidator.ifAnyIsNotValid(from, to, inviter, invitee)) return;
 
         Objects.requireNonNull(to);
-        eventMessanger.readyToPlayEvent(to);
+        eventMessenger.readyToPlayEvent(to);
     }
 
     //Ход соперника - проверка попадания - выдача поражения или победы
@@ -71,108 +74,65 @@ public class GameLogic {
         if (checkMyRightToHit(attacker, victim))
             switch (doHit(victim, y - 1, x - 1)) {
                 case 0:
-                    eventMessanger.missedPlayEvent(victim, x, y);
+                    eventMessenger.missedPlayEvent(victim, x, y);
                     return "zero";
                 case 1:
-                    eventMessanger.hitPlayEvent(victim, x, y);
+                    eventMessenger.hitPlayEvent(victim, x, y);
                     return "injured";
                 case 2:
                     if (checkKillAll(victim)) {
-                        eventMessanger.gameOverPlayEvent(victim, x, y);
+                        eventMessenger.gameOverPlayEvent(victim, x, y);
                         updateRatings(attacker, victim);
                         return "victory";
                     }
-                    eventMessanger.killedPlayEvent(victim, x, y);
+                    eventMessenger.killedPlayEvent(victim, x, y);
                     return "killed";
             }
         return "error";
     }
 
     private void updateRatings(@NonNull String from, @NonNull String to) {
-        GamerSet gamerFrom = allGames.getGamerByName(from);
-        GamerSet gamerTo = allGames.getGamerByName(to);
+        GamerSet gamerFrom = gameDao.getGamerByName(from);
+        GamerSet gamerTo = gameDao.getGamerByName(to);
 
         GamerSet updatedFrom = Optional.ofNullable(gamerFrom)
                 .map(GamerSet::withAddRating).orElse(null);
         GamerSet updatedTo = Optional.ofNullable(gamerTo)
                 .map(GamerSet::withAddRating).orElse(null);
 
-        if ((Objects.isNull(gamerFrom) || Objects.isNull(gamerTo)
-        || Objects.isNull(updatedFrom)) || Objects.isNull(updatedTo)) return;
+        if (playerValidator.ifAnyIsNull(gamerFrom, gamerTo, updatedFrom, updatedTo)) return;
 
-        if (allGames.tryUpdateGamersAtomically(gamerFrom, gamerTo, updatedFrom, updatedTo)) {
-            eventMessanger.listOfPlayersChangedEvent();
+        if (gameDao.tryUpdateGamersAtomically(gamerFrom, gamerTo, updatedFrom, updatedTo)) {
+            eventMessenger.listOfPlayersChangedEvent();
         }
     }
 
     //Безопасность - проверяем не подделан ли запрос
     private boolean checkMyRightToHit(@NonNull String from, @NonNull String to) {
-        final GamerSet inviter = allGames.getGamerByName(from);
-        final GamerSet invitee = allGames.getGamerByName(to);
+        final GamerSet inviter = gameDao.getGamerByName(from);
+        final GamerSet invitee = gameDao.getGamerByName(to);
 
-        if (ifNullSendRejectOrError(from, to, inviter, invitee)) return false;
+        if (playerValidator.ifAnyIsNotValid(from, to, inviter, invitee)) return false;
         return inviter.getPlayWith().equals(invitee.getName());
     }
 
-    private boolean ifNullOrBusySendReject(@NonNull String from, @NonNull String to,
-                                           @Nullable GamerSet inviter, @Nullable GamerSet invitee)
+
+    private boolean tryPlayTogether(@NonNull String from, @NonNull String to,
+                                    @NonNull GamerSet invitee, @NonNull GamerSet inviter)
     {
-        if (ifNullSendRejectOrError(from, to, inviter, invitee)) return true;
+        GamerSet inviterUpdated = GamerSet.makePlayingWith(inviter, to);
+        GamerSet inviteeUpdated = GamerSet.makePlayingWith(invitee, from);
 
-        Objects.requireNonNull(inviter);
-        Objects.requireNonNull(invitee);
-        if (!(inviter.isFree() && invitee.isFree())) {
-            rejectIfNotYetPlaying(from, to, inviter, invitee);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean makeGamersPlayingOneAnother(@NonNull String from, @NonNull String to,
-                                                @NonNull GamerSet invitee, @NonNull GamerSet inviter)
-    {
-        GamerSet inviteeUpdated = invitee.toBuilder().playWith(from).free(false).build();
-        GamerSet inviterUpdated = inviter.toBuilder().free(false).playWith(to).build();
-
-        if (allGames.tryUpdateGamersAtomically(invitee, inviter, inviterUpdated, inviteeUpdated)) {
-            eventMessanger.listOfPlayersChangedEvent();
+        if (gameDao.tryUpdateGamersAtomically(inviter, invitee,  inviterUpdated, inviteeUpdated)) {
+            eventMessenger.listOfPlayersChangedEvent();
             return true;
         }
         else return false;
     }
 
-    private boolean ifNullSendRejectOrError(@NonNull String from, @Nullable String to,
-                                            @Nullable GamerSet inviter, @Nullable GamerSet invitee)
-    {
-        if (inviter == null && invitee == null) {
-            eventMessanger.errorEvent(from);
-            if (Objects.nonNull(to)) eventMessanger.errorEvent(to);
-            return true;
-        }
-        if (invitee == null) {
-            eventMessanger.escapedPlayEvent(from);
-            return true;
-        }
-        if (inviter == null) {
-            Objects.requireNonNull(to);
-            eventMessanger.escapedPlayEvent(to);
-            return true;
-        }
-        return false;
-    }
-
-    private void rejectIfNotYetPlaying(@NonNull String from, @NonNull String to,
-                                       @NonNull GamerSet inviter, @NonNull GamerSet invitee)
-    {
-        //так как возможны множественные приглашения, то мы проверим
-        //если еще не играют между собой
-        if (!inviter.getPlayWith().equals(to) || !invitee.getPlayWith().equals(from))
-            eventMessanger.inviteRejectedEvent(from, to);
-    }
-
 
     private int doHit(@NonNull String name, int i, int j) {
-        ShipList shipList = allGames.getShipListByName(name);
+        ShipList shipList = gameDao.getShipListByName(name);
 
         for (ShipList.SmallSip smallSip : shipList.smallSipList) {
             if (smallSip.contains(i,j)) {
@@ -188,13 +148,37 @@ public class GameLogic {
     }
 
     private void updateGamersScore(String name) {
-        GamerSet gamerByName = allGames.getGamerByName(name);
+        GamerSet gamerByName = gameDao.getGamerByName(name);
         GamerSet gamerUpdated = GamerSet.addKilled(gamerByName);
-        allGames.updateGamer(gamerUpdated);
+
+        gameDao.updateGamer(gamerUpdated);
     }
 
     private boolean checkKillAll(String name){
-        GamerSet gamerSet = allGames.getGamerByName(name);
+        GamerSet gamerSet = gameDao.getGamerByName(name);
         return (gamerSet.ifKilledEnough());
+    }
+
+    private boolean ifBusy(@NonNull String from, @NonNull String to,
+                           @Nullable GamerSet inviter, @Nullable GamerSet invitee)
+    {
+        if (playerValidator.ifAnyIsNotValid(from, to, inviter, invitee)) return true;
+        Objects.requireNonNull(inviter);
+        Objects.requireNonNull(invitee);
+
+        if (!(inviter.isFree() && invitee.isFree())) {
+            rejectIfNotYetPlaying(from, to, inviter, invitee);
+            return true;
+        }
+        return false;
+    }
+
+    private void rejectIfNotYetPlaying(@NonNull String from, @NonNull String to,
+                                       @NonNull GamerSet inviter, @NonNull GamerSet invitee)
+    {
+        //так как возможны множественные приглашения, то мы проверим
+        //если еще не играют между собой
+        if (!inviter.getPlayWith().equals(to) || !invitee.getPlayWith().equals(from))
+            eventMessenger.inviteRejectedEvent(from, to);
     }
 }
