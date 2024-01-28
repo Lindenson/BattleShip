@@ -57,7 +57,6 @@ public class GameLogic {
     //Объявляем, что расставили корабли
     public void informPartnerOfFinishedSetUp(@NonNull String from) {
         final GamerSet inviter = gameDao.getGamerByName(from);
-
         final String to = Optional.ofNullable(inviter).map(GamerSet::getPlayWith).orElse(null);
         final GamerSet invitee = Optional.ofNullable(to).map(gameDao::getGamerByName)
                 .filter(it -> it.getPlayWith().equals(from)).orElse(null);

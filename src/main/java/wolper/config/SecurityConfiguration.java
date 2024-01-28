@@ -1,6 +1,7 @@
 package wolper.config;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,6 +21,9 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    @Value("${logout.secret}")
+    public String secret;
+
     @Bean
     public UserDetailsManager users(DataSource dataSource) {
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
@@ -36,7 +40,7 @@ public class SecurityConfiguration {
                         .loginPage("/login")
                         .defaultSuccessUrl("/game")
                         .failureForwardUrl("/regerror")
-                        .failureHandler(new SecurityErrorHandler())
+                        .failureHandler(new SecurityErrorHandler(secret))
                 )
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/", "/home", "/login", "/register", "success",
@@ -55,7 +59,7 @@ public class SecurityConfiguration {
                     .invalidSessionUrl("/home")
                     .maximumSessions(1)
                     .maxSessionsPreventsLogin(true)
-                    .expiredUrl("/")
+                    .expiredUrl("/home")
                     .sessionRegistry(sessionRegistry())
                 )
                 .build();

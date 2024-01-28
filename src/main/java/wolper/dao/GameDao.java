@@ -23,13 +23,13 @@ public class GameDao {
 
 
 
-    private final GamerDao gamerDAO;
+    private final UserDao userDAO;
     private final EventMessenger eventMessenger;
 
 
 
     public void createGamerByName(@NonNull String name) {
-        int rating = gamerDAO.getRatingOnStartUp(name);
+        int rating = userDAO.getRatingOnStartUp(name);
         listOfGamer.put(name, GamerSet.freshGamerInstance(name, rating));
         //Даем время вновьприбывшему подключиться к Вебсокету
         try {
@@ -77,7 +77,7 @@ public class GameDao {
     private void deleteGamerByName(@NonNull String name) {
         Optional.ofNullable(listOfGamer.remove(name))
                 .ifPresent(player -> {
-                    gamerDAO.setRatingOnExit(name, player.getRating());
+                    userDAO.setRatingOnExit(name, player.getRating());
                     listOfShips.remove(name);
                     eventMessenger.listOfPlayersChangedEvent();
                 });

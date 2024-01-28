@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 @Builder(toBuilder = true)
 @Getter
 @EqualsAndHashCode
@@ -19,6 +21,7 @@ public class GamerSet {
     private final String invitedBy;
     private final int killed;
     private final int rating;
+    private final int token = ThreadLocalRandom.current().nextInt();
 
 
     public boolean ifKilledEnough() { return killed > ALL_SHIPS_CHECKS;}

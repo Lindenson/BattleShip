@@ -35,7 +35,7 @@ public class PlayerValidator {
         return false;
     }
 
-    public boolean ifAnyIsNull(GamerSet gamerFrom, GamerSet gamerTo, GamerSet updatedFrom, GamerSet updatedTo) {
+    public boolean ifAnyIsNull(Object gamerFrom, Object gamerTo, Object updatedFrom, Object updatedTo) {
         return (Objects.isNull(gamerFrom) || Objects.isNull(gamerTo)
                 || Objects.isNull(updatedFrom)) || Objects.isNull(updatedTo);
     }

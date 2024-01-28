@@ -52,6 +52,10 @@ public class EventMessenger {
         messaging.convertAndSend("/topic/"+ to, "error&Что то пошло не так!");
     }
 
+    public void logoutEvent(@NonNull String to){
+        messaging.convertAndSend("/topic/"+ to, "logout&Вы вышли из игры!");
+    }
+
     public void inviteRejectedEvent(@NonNull String from, @NonNull String to){
         messaging.convertAndSend("/topic/invite", from +"&invitedFail&"+ to);
     }

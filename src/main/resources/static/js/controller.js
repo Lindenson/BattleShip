@@ -516,7 +516,10 @@ let handleInfoExchange = function (incoming) {
     let context=incoming.body.split("&");
     switch (context[0]) {
         case "error":
-            alertMy ("Ошибка на сервере! Перегрузитесь", function () {}, true);
+            alertMy ("Ошибка на сервере! Перегрузитесь", function () {window.location='/';}, true);
+            break;
+        case "logout":
+            window.location='/';
             break;
         case "escaped":
             alertMy (context[1], function () {goNextStep("restartGame");}, true);

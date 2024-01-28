@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import wolper.logic.EventMessenger;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,6 +27,8 @@ import java.util.Set;
 public class SessionService {
 
     private final SessionRegistry sessionRegistry;
+    private final EventMessenger eventMessenger;
+
 
     public List<SessionInformation> getActiveSessions() {
         List<SessionInformation> activeSessions = new ArrayList<>();
@@ -53,14 +56,14 @@ public class SessionService {
     //Таким образом состаривал и убивал все сесии в других окнах и на других машинах
     public void expireAndKillUserSessions(String username, int port) {
         if (username==null) return;
-	    Set<String> sessionID=new HashSet<>();
+	    Set<SessionInformation> sessionID=new HashSet<>();
             for (Object principal : sessionRegistry.getAllPrincipals()) {
                 if (principal instanceof User) {
                     UserDetails userDetails = (UserDetails) principal;
                     if (userDetails.getUsername().equals(username)) {
                         for (SessionInformation information : sessionRegistry.getAllSessions(userDetails, true)) {
-                            information.expireNow();
-			                sessionID.add(information.getSessionId());
+			                sessionID.add(information);
+                            eventMessenger.logoutEvent(((User) principal).getUsername());
                         }
                     }
                 }
@@ -76,13 +79,14 @@ public class SessionService {
     //В результате открытая на другой машине сессия в браузере закрывается с переходом на страницу логина
     //То же семое можно применить и для контроля закрытия окна браузера с последующим закрытием сессии
     //Для этого случая нужно доделать тикер
-    void killExpiredSession(Set<String> idList, int port) {
+    void killExpiredSession(Set<SessionInformation> idList, int port) {
         try {
-            for (String id : idList) {
+            for (SessionInformation sessionInfo : idList) {
                 HttpHeaders requestHeaders = new HttpHeaders();
-                requestHeaders.add("Cookie", "JSESSIONID=" + id);
+                requestHeaders.add("Cookie", "JSESSIONID=" + sessionInfo.getSessionId());
                 HttpEntity<Object> requestEntity = new HttpEntity<>(null, requestHeaders);
                 RestTemplate rt = new RestTemplate();
+                sessionInfo.expireNow();
                 rt.exchange("http://localhost:"+port, HttpMethod.GET, requestEntity, String.class);
             }
         } catch (Exception ex) {

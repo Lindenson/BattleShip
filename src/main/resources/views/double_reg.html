@@ -16,12 +16,10 @@
 <body class="ocean">
 <div class="container mt-5">
     <div class="mt-5 p-5 btn-dark text-white rounded">
-
         <h1>Ошибка!</h1>
-        <h4>Вы уже были залогинены на этой/другой машине! Можете просто закрыть это окно браузера и играть там, где уже
-            залогинены</h4>
-        <p><a th:href="@{/double_reg_final}+'/'+${name}" class="btn btn-primary btn-lg" role="button">Закрыть все прошлые
-            соединения и войти занова?</a></p>
+        <h4>Вы уже подключены на этой/другой машине! Можете закрыть и продолжить играть там</h4>
+        <p style="display: inline-block"><a href="/home" class="btn btn-primary btn-lg m-3" role="button">Закрыть</a></p>
+        <p style="display: inline-block"><a th:href="@{/double_reg_final}+'/'+${name}+'/'+${token}" class="btn btn-primary btn-lg m-3" role="button">Подключиться тут</a></p>
     </div>
 </div>
 

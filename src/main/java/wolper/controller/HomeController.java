@@ -1,29 +1,38 @@
 package wolper.controller;
 
 import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import wolper.dao.GamerDao;
+import wolper.dao.GameDao;
+import wolper.dao.UserDao;
 import wolper.domain.Gamer;
 import wolper.domain.LogicException;
 import wolper.logic.*;
 import wolper.security.SessionService;
 
+import java.util.Objects;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class HomeController {
-    private final GamerDao gamerDAO;
+    private final UserDao userDAO;
     private final GameLogic gameLogic;
+    private final GameDao gameDao;
     private final SessionService session;
+
+    @Value("${logout.secret}")
+    public String secret;
 
 
     @RequestMapping({"/", "/home"})
@@ -48,18 +57,21 @@ public class HomeController {
 
     //Контроллер регистрации - попытка залогиниться дважды при открытой сессии в другом окне
     @RequestMapping("/double_reg/{name}")
-    public ModelAndView doubleRegChecker(@PathVariable("name") String name) {
+    public ModelAndView doubleRegChecker(@PathVariable("name") String name, HttpServletRequest request) {
         ModelAndView modelAndView = new ModelAndView("double_reg");
         modelAndView.addObject("name", name);
+        ifHasRightThenToLogout(name, request, modelAndView);
         return modelAndView;
     }
 
+
     //Контроллер регистрации - логринимся занова а прошлые сессии надежно убиваем
-    @RequestMapping("/double_reg_final/{name}")
-    public ModelAndView doubleRegKiller(@PathVariable("name") String name, ServletRequest request) {
-        session.expireAndKillUserSessions(name, request.getLocalPort());
-        //TODO передалать на POST - так будет безопаснее.
-        // Злой польщователь не сможет указав логин в URL завалить другого пользователя
+    @RequestMapping("/double_reg_final/{name}/{token}")
+    public ModelAndView doubleRegKiller(@PathVariable("name") String name, @PathVariable("token") String secret, ServletRequest request) {
+        String token = String.format("token-%d", gameDao.getGamerByName(name).getToken());
+        if (secret.equals(token)) {
+            session.expireAndKillUserSessions(name, request.getLocalPort());
+        }
         return new ModelAndView("redirect:/home");
     }
 
@@ -92,23 +104,37 @@ public class HomeController {
         if (!gamer.getPassword().equals(password2)) return new ModelAndView("not_equal");
 
         //Проверка совпадения имени игрока
-        if (gamerDAO.ifDoubleGamer(gamer.getName())) return new ModelAndView("reg_error");
+        if (userDAO.ifDoubleGamer(gamer.getName())) return new ModelAndView("reg_error");
 
         //Сохранить игрока в базе данных
-        gamerDAO.saveGamer(gamer);
+        userDAO.saveGamer(gamer);
         return new ModelAndView("redirect:success");
     }
 
 
     //Свомп контроллеры для передачи игровой инфорамации
     @MessageMapping("/infoExchange")
-    public void handleSubscription(String name) {
-        String[] names = name.split("&");
-        //Полчено приглашение
-        if (names[0].equals("invite")) {
-            gameLogic.inviteOneAnother(names[1], names[2]);
+    public void handleSubscription(String message) {
+        try{
+            String[] names = message.split("&");
+            //Полчено приглашение
+            if (names[0].equals("invite")) {
+                gameLogic.inviteOneAnother(names[1], names[2]);
+            }
+        } catch (Exception e){
+            log.error("wrong message format: {}", e.getMessage());
         }
-        //Todo!!! Сделать полноценный обмен сообщениями между игроками
+    }
+
+
+    private void ifHasRightThenToLogout(String name, HttpServletRequest request, ModelAndView modelAndView) {
+        String secretForLogout = (String) request.getAttribute("secret");
+        if (Objects.nonNull(secretForLogout) && secretForLogout.equals(secret)) {
+            String token = String.format("token-%d", gameDao.getGamerByName(name).getToken());
+            modelAndView.addObject("token", token);
+        } else {
+            modelAndView.addObject("token", "unknown");
+        }
     }
 
 }
