@@ -1,6 +1,6 @@
 package wolper;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -9,16 +9,23 @@ import wolper.domain.GamerSet;
 import wolper.logic.EventMessenger;
 import wolper.logic.PlayerValidator;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class ValidatorTest {
 
-    static GamerSet testGamer;
+    private GamerSet testGamer;
 
-    @BeforeAll
-    public static void init(){
-         testGamer = GamerSet.freshGamerInstance("1",1);
+    @BeforeEach
+    public void init() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        Class<GamerSet> gamerSetClass = GamerSet.class;
+        Constructor<GamerSet> declaredConstructor = gamerSetClass.getDeclaredConstructor(String.class, Boolean.TYPE, String.class, String.class, Integer.TYPE, Integer.TYPE);
+        declaredConstructor.setAccessible(true);
+        GamerSet gamerSet = declaredConstructor.newInstance("", true, "", "", 1, 1);
+        testGamer  = gamerSet;
     }
 
     @Mock
@@ -28,7 +35,6 @@ public class ValidatorTest {
 
     @Test
     void ifAnyIsNull(){
-        assertNotNull(testGamer);
         assertTrue(playerValidator.ifAnyIsNull(testGamer, testGamer, testGamer, null));
         assertTrue(playerValidator.ifAnyIsNull(testGamer, testGamer, null, testGamer));
         assertTrue(playerValidator.ifAnyIsNull(testGamer, null, testGamer, testGamer));
@@ -38,7 +44,6 @@ public class ValidatorTest {
 
     @Test
     void ifAnyIsNotValid(){
-        assertNotNull(testGamer);
         assertTrue(playerValidator.ifAnyIsNotValid("1", "2", testGamer, null));
         assertTrue(playerValidator.ifAnyIsNotValid("1", "2", null, testGamer));
         assertTrue(playerValidator.ifAnyIsNotValid("1", "2",  null, testGamer));

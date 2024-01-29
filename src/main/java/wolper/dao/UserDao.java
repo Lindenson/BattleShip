@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 
-@Repository
 @Slf4j
+@Repository
 public class UserDao {
 
     public UserDao(NamedParameterJdbcTemplate template, PasswordEncoder passwordEncoder) {
