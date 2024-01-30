@@ -55,12 +55,12 @@ class GameOverTest {
     @Test
     void doNextMoveAndWin() throws Exception {
         when(gameDao.getGamerByName(eq("mama")))
-                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().playWith("daughter").build());
+                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("daughter").build());
 
         GamerSet daughter = mock(GamerSet.class);
         when(daughter.getName()).thenReturn("daughter");
         when(daughter.ifKilledEnough()).thenReturn(true);
-        when(daughter.getPlayWith()).thenReturn("mama");
+        when(daughter.getPartner()).thenReturn("mama");
         when(daughter.isFree()).thenReturn(false);
 
         mockStatic(GamerSet.class);

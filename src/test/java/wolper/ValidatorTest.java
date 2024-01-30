@@ -22,9 +22,9 @@ public class ValidatorTest {
     @BeforeEach
     public void init() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<GamerSet> gamerSetClass = GamerSet.class;
-        Constructor<GamerSet> declaredConstructor = gamerSetClass.getDeclaredConstructor(String.class, Boolean.TYPE, String.class, String.class, Integer.TYPE, Integer.TYPE);
+        Constructor<GamerSet> declaredConstructor = gamerSetClass.getDeclaredConstructor(String.class, String.class, Integer.TYPE, Integer.TYPE);
         declaredConstructor.setAccessible(true);
-        GamerSet gamerSet = declaredConstructor.newInstance("", true, "", "", 1, 1);
+        GamerSet gamerSet = declaredConstructor.newInstance("", "", 1, 1);
         testGamer  = gamerSet;
     }
 

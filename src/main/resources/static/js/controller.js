@@ -284,12 +284,12 @@ function initMamaSTOMP() {
         }
         if (strStartsWith(incoming.body,myName()+"&invitedFail")) {
             let otherSide=incoming.body.split("&")[2];
-            alertMy('Приглашение к '+otherSide +' отвергнуто!', function () {});
+            informDialogHandler('Приглашение к '+otherSide +' отвергнуто!', function () {});
             return;
         }
         if (strStartsWith(incoming.body,myName()+"&invitedDone")) {
             yourPartner=incoming.body.split("&")[2];
-            alertMy("Приглашение принято игроком " + yourPartner, function () {});
+            informDialogHandler("Приглашение принято игроком " + yourPartner, function () {});
             goNextStep("prepare");
             return;
         }
@@ -302,7 +302,7 @@ function initMamaSTOMP() {
                 let otherSide=incoming.body.split("&")[0];
                 if (agreedTo===otherSide) {  //если мы соглашались только что играть
                     agreedTo = "";
-                    alertMy('Ваше приглашение от '+otherSide +' более не действует!', function () {});
+                    informDialogHandler('Ваше приглашение от '+otherSide +' более не действует!', function () {});
                 }
             return;
         }
@@ -393,7 +393,7 @@ function drawListGamersTable() {
                         if(nameHis==="Имя") return;
                         if (free!=='true') return;
                         //Отправляем приглашение
-                        alertMy("Отправляем приглашение "+$(this).children(':first').text(), function () {
+                        informDialogHandler("Отправляем приглашение "+$(this).children(':first').text(), function () {
                             initSTOMP.client.publish({
                                 destination: '/app/infoExchange',
                                 body: "invite&" + myName() + "&" + nameHis,
@@ -497,7 +497,7 @@ function goNextStep(step) {
             initFightModel();
             $('#play').css('display', 'inline');
             if (partnerSetUp) setPageHeader('Ходит '+yourPartner+'....');
-            else {setPageHeader(yourPartner+' расставляет! Ждем....'); yourStep=true;}
+            else { setPageHeader(yourPartner+' расставляет! Ждем....'); yourStep=true; }
             break;
 
         case "toExit":
@@ -516,13 +516,13 @@ let handleInfoExchange = function (incoming) {
     let context=incoming.body.split("&");
     switch (context[0]) {
         case "error":
-            alertMy ("Ошибка на сервере! Перегрузитесь", function () {window.location='/';}, true);
+            informDialogHandler ("Ошибка на сервере! Перегрузитесь", function () {window.location='/';}, true);
             break;
         case "logout":
             window.location='/';
             break;
         case "escaped":
-            alertMy (context[1], function () {goNextStep("restartGame");}, true);
+            informDialogHandler (context[1], function () {goNextStep("restartGame");}, true);
             break;
         case "setUp":
             if (yourStep) setPageHeader('Ходите Вы....');
@@ -568,7 +568,7 @@ function strFinishesWith(str, prefix) {
 function preventMultiEntrance() {
     const alreadyPlaying = $('#forAlreadyPlaying').text();
     if (alreadyPlaying === 'true') {
-        alertMy("Вы повторно вошли в игру в том же браузере, из-за этого прошлая " +
+        informDialogHandler("Вы повторно вошли в игру в том же браузере, из-за этого прошлая " +
             "игра (в другом окне) будет прекращена?", () => goNextStep('toExit'))
     }
 

@@ -1,11 +1,9 @@
 package wolper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import wolper.domain.BoardOfShips;
 import wolper.domain.GamerSet;
@@ -65,7 +63,7 @@ class GameLogicTest {
     @Test
     void inviteWithBusyFirst(){
         when(gameDao.getGamerByName(eq("mama"))).thenReturn(GamerSet.freshGamerInstance("mama", 0));
-        when(gameDao.getGamerByName(eq("papa"))).thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().free(false).build());
+        when(gameDao.getGamerByName(eq("papa"))).thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().partner("son").build());
         gameLogic.inviteOneAnother("mama", "papa");
         verify(eventMessenger, never()).inviteEvent(any(), any());
         verify(eventMessenger).inviteRejectedEvent(from.capture(), to.capture());
@@ -74,10 +72,20 @@ class GameLogicTest {
     @Test
     void inviteWithBusySecond(){
         when(gameDao.getGamerByName(eq("papa"))).thenReturn(GamerSet.freshGamerInstance("papa", 0));
-        when(gameDao.getGamerByName(eq("mama"))).thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().free(false).build());
+        when(gameDao.getGamerByName(eq("mama"))).thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("son").build());
         gameLogic.inviteOneAnother("mama", "papa");
         verify(eventMessenger, never()).inviteEvent(any(), any());
         verify(eventMessenger).inviteRejectedEvent(from.capture(), to.capture());
+    }
+
+    @Test
+    void notInviteOrRejectAgain(){
+        when(gameDao.getGamerByName(eq("mama"))).thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("papa").build());
+        when(gameDao.getGamerByName(eq("papa"))).thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().partner("mama").build());
+        gameLogic.inviteOneAnother("mama", "papa");
+        verify(eventMessenger, never()).inviteEvent(any(), any());
+        verify(eventMessenger, never()).inviteRejectedEvent(from.capture(), to.capture());
+        verify(eventMessenger, never()).inviteEvent(any(), any());
     }
 
     @Test
@@ -95,15 +103,15 @@ class GameLogicTest {
         verify(gameDao).tryUpdateGamersAtomically(any(), any(), inviter.capture(), invitee.capture());
         assertEquals("mama", inviter.getValue().getName());
         assertEquals("papa", invitee.getValue().getName());
-        assertEquals("papa", inviter.getValue().getPlayWith());
-        assertEquals("mama", invitee.getValue().getPlayWith());
+        assertEquals("papa", inviter.getValue().getPartner());
+        assertEquals("mama", invitee.getValue().getPartner());
     }
 
     @Test
     void notAcceptWithoutAtomicity(){
         when(gameDao.tryUpdateGamersAtomically(any(), any(), any(), any())).thenCallRealMethod();
         when(gameDao.getGamerByName(eq("mama"))).thenReturn(GamerSet.freshGamerInstance("mama", 0),
-                GamerSet.freshGamerInstance("mama", 0).toBuilder().free(false).build());
+                GamerSet.freshGamerInstance("mama", 0).toBuilder().build());
         when(gameDao.getGamerByName(eq("papa"))).thenReturn(GamerSet.freshGamerInstance("papa", 0));
         gameLogic.acceptInvitation("mama", "papa");
         verify(eventMessenger, never()).inviteAcceptedEvent(any(), any());
@@ -114,7 +122,7 @@ class GameLogicTest {
 
     @Test
     void notAcceptWithBusyFirst(){
-        when(gameDao.getGamerByName(eq("mama"))).thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().free(false).build());
+        when(gameDao.getGamerByName(eq("mama"))).thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().build());
         when(gameDao.getGamerByName(eq("papa"))).thenReturn(GamerSet.freshGamerInstance("papa", 0));
         gameLogic.acceptInvitation("mama", "papa");
         verify(eventMessenger, never()).inviteAcceptedEvent(any(), any());
@@ -125,7 +133,7 @@ class GameLogicTest {
 
     @Test
     void notAcceptWithBusySecond(){
-        when(gameDao.getGamerByName(eq("mama"))).thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().free(false).build());
+        when(gameDao.getGamerByName(eq("mama"))).thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().build());
         when(gameDao.getGamerByName(eq("papa"))).thenReturn(GamerSet.freshGamerInstance("papa", 0));
         gameLogic.acceptInvitation("mama", "papa");
         verify(eventMessenger, never()).inviteAcceptedEvent(any(), any());
@@ -148,9 +156,9 @@ class GameLogicTest {
     @Test
     void notRejectIfAlreadyPlaying(){
         when(gameDao.getGamerByName(eq("mama")))
-                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().playWith("papa").build());
+                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("papa").build());
         when(gameDao.getGamerByName(eq("papa")))
-                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().playWith("mama").build());
+                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().partner("mama").build());
         gameLogic.rejectInvitation("mama", "papa");
         verify(eventMessenger, never()).inviteAcceptedEvent(any(), any());
         verify(eventMessenger, never()).inviteRejectedEvent(any(), any());
@@ -159,9 +167,9 @@ class GameLogicTest {
     @Test
     void informPartnerOfFinishedSetUp(){
         when(gameDao.getGamerByName(eq("mama")))
-                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().playWith("papa").build());
+                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("papa").build());
         when(gameDao.getGamerByName(eq("papa")))
-                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().playWith("mama").build());
+                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().partner("mama").build());
         gameLogic.informPartnerOfFinishedSetUp("mama");
         verify(eventMessenger).readyToPlayEvent(to.capture());
     }
@@ -169,9 +177,9 @@ class GameLogicTest {
     @Test
     void notInformPartnerOfFinishedSetUpIfNotPlayingWith(){
         when(gameDao.getGamerByName(eq("mama")))
-                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().playWith("son").build());
+                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("son").build());
         when(gameDao.getGamerByName(eq("papa")))
-                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().playWith("mama").build());
+                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().partner("mama").build());
         when(playerValidator.ifAnyIsNotValid(any(),any(),any(),any())).thenReturn(true);
         gameLogic.informPartnerOfFinishedSetUp("mama");
         verify(eventMessenger, never()).readyToPlayEvent(any());
@@ -192,9 +200,9 @@ class GameLogicTest {
     @Test
     void doNextMoveZero() throws Exception {
         when(gameDao.getGamerByName(eq("mama")))
-                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().playWith("papa").build());
+                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("papa").build());
         when(gameDao.getGamerByName(eq("papa")))
-                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().playWith("mama").build());
+                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().partner("mama").build());
         ObjectMapper objectMapper = new ObjectMapper();
         BoardOfShips shipList = objectMapper.readValue(ships,BoardOfShips.class);
 
@@ -210,9 +218,9 @@ class GameLogicTest {
     @Test
     void doNextMoveHit() throws Exception {
         when(gameDao.getGamerByName(eq("mama")))
-                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().playWith("papa").build());
+                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("papa").build());
         when(gameDao.getGamerByName(eq("papa")))
-                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().playWith("mama").build());
+                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().partner("mama").build());
         ObjectMapper objectMapper = new ObjectMapper();
         BoardOfShips shipList = objectMapper.readValue(ships, BoardOfShips.class);
 
@@ -228,9 +236,9 @@ class GameLogicTest {
     @Test
     void doNextMoveError() throws Exception {
         when(gameDao.getGamerByName(eq("mama")))
-                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().playWith("son").build());
+                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("son").build());
         when(gameDao.getGamerByName(eq("papa")))
-                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().playWith("mama").build());
+                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().partner("mama").build());
         ObjectMapper objectMapper = new ObjectMapper();
         BoardOfShips shipList = objectMapper.readValue(ships, BoardOfShips.class);
 
@@ -246,9 +254,9 @@ class GameLogicTest {
     @Test
     void doNextMoveKilled() throws Exception {
         when(gameDao.getGamerByName(eq("mama")))
-                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().playWith("papa").build());
+                .thenReturn(GamerSet.freshGamerInstance("mama", 0).toBuilder().partner("papa").build());
         when(gameDao.getGamerByName(eq("papa")))
-                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().playWith("mama").build());
+                .thenReturn(GamerSet.freshGamerInstance("papa", 0).toBuilder().partner("mama").build());
         ObjectMapper objectMapper = new ObjectMapper();
         BoardOfShips shipList = objectMapper.readValue(ships, BoardOfShips.class);
 

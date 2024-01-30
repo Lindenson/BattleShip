@@ -26,7 +26,6 @@ public class GameLogic {
         final GamerSet invitee = gameDao.getGamerByName(to);
 
         if (ifBusy(from, to, inviter, invitee)) return;
-
         eventMessenger.inviteEvent(from, to);
     }
 
@@ -57,9 +56,9 @@ public class GameLogic {
     //Объявляем, что расставили корабли
     public void informPartnerOfFinishedSetUp(@NonNull String from) {
         final GamerSet inviter = gameDao.getGamerByName(from);
-        final String to = Optional.ofNullable(inviter).map(GamerSet::getPlayWith).orElse(null);
+        final String to = Optional.ofNullable(inviter).map(GamerSet::getPartner).orElse(null);
         final GamerSet invitee = Optional.ofNullable(to).map(gameDao::getGamerByName)
-                .filter(it -> it.getPlayWith().equals(from)).orElse(null);
+                .filter(it -> it.getPartner().equals(from)).orElse(null);
 
         if (playerValidator.ifAnyIsNotValid(from, to, inviter, invitee)) return;
 
@@ -112,7 +111,7 @@ public class GameLogic {
         final GamerSet invitee = gameDao.getGamerByName(to);
 
         if (playerValidator.ifAnyIsNotValid(from, to, inviter, invitee)) return false;
-        return inviter.getPlayWith().equals(invitee.getName());
+        return inviter.getPartner().equals(invitee.getName());
     }
 
 
@@ -177,7 +176,7 @@ public class GameLogic {
     {
         //так как возможны множественные приглашения, то мы проверим
         //если еще не играют между собой
-        if (!inviter.getPlayWith().equals(to) || !invitee.getPlayWith().equals(from))
+        if (!inviter.getPartner().equals(to) || !invitee.getPartner().equals(from))
             eventMessenger.inviteRejectedEvent(from, to);
     }
 }

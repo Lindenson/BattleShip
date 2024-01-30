@@ -85,7 +85,7 @@ public class GameDao {
 
     private void informPartnerOnGoOut(@NonNull String name) {
         Optional.ofNullable(getGamerByName(name))
-                .map(GamerSet::getPlayWith)
+                .map(GamerSet::getPartner)
                 .map(this::getGamerByName)
                 .ifPresent(partner -> {
                     updateGamer(GamerSet.withUntouchedRating(partner));

@@ -12,7 +12,11 @@ import wolper.dao.UserDao;
 import wolper.domain.Gamer;
 import wolper.domain.LogicException;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.*;
 
@@ -30,7 +34,7 @@ public class UserDaoTest {
 
 
     @Test
-    void testTransactionPass(){
+    void transactionPass(){
         Gamer gamer = new Gamer();
         gamer.setName("denis");
         gamer.setPassword("papa");
@@ -42,7 +46,7 @@ public class UserDaoTest {
     }
 
     @Test
-    void testTransactionFails(){
+    void transactionFails(){
         willThrow(new ConcurrencyFailureException("")).given(database).update(any(), any(), any());
         Gamer gamer = new Gamer();
         gamer.setName("denis");
@@ -56,5 +60,17 @@ public class UserDaoTest {
 
         verify(database, times(1)).update(any(), any(), any());
         verify(database, never()).update(any(), (SqlParameterSource) any());
+    }
+
+    @Test
+    void doubleUserFound(){
+        Gamer gamer = new Gamer();
+        gamer.setName("denis");
+        gamer.setPassword("papa");
+        gamer.setRole("gamer");
+        willReturn(List.of(gamer)).given(database).queryForList(any(), (SqlParameterSource) any(), eq(String.class));
+
+        assertTrue(userDao.ifDoubleGamer("denis"));
+        verify(database, times(1)).queryForList(any(), (SqlParameterSource) any(), eq(String.class));
     }
 }

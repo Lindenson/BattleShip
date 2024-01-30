@@ -36,20 +36,20 @@ function sendMyNextStep(cell){
                     showKill(cellObject.x, cellObject.y);
                     yourStep=true;
                     setPageHeader('Ходите Вы....');
-                    bomb_explode();
+                    bombExplode();
                     break;
                 case "victory" :
                     $('#'+cellObject.toIdPartner()).addClass('killed');
                     showKill(cellObject.x, cellObject.y);
                     yourStep=false;
                     setPageHeader('Вы победили!');
-                    alertMy("Поздравляем Вас с победой!",
+                    informDialogHandler("Поздравляем Вас с победой!",
                         function () {goNextStep("restartGame");}, true);
                     break;
                 case "error" :
                     yourStep=false;
                     setPageHeader('Ошибка!');
-                    alertMy(x[1], ()=> goNextStep("restartGame"), true);
+                    informDialogHandler(x[1], ()=> goNextStep("restartGame"), true);
                     break;
                 default :
                     yourStep=true;
@@ -88,13 +88,13 @@ function hitMe(x, y, result) {
             showKillMe(cellObject.x, cellObject.y);
             yourStep=false;
             setPageHeader('Ходит '+yourPartner+'....');
-            bomb_explode();
+            bombExplode();
             break;
         case "defeated" :
             $('#'+cellObject.toId()).addClass('killed');
             yourStep=false;
             setPageHeader('Вы проиграли!');
-            alertMy("Вы проиграли! Удачи в следующей игре...",
+            informDialogHandler("Вы проиграли! Удачи в следующей игре...",
                 function () {goNextStep("restartGame");}, true);
             break;
     }
@@ -199,23 +199,23 @@ function showKillMe(x, y) {
 
 
 //универсальный диалог сообщений
-let alertMy = function (text, callback, alter) {
-    let alertDialog = new bootstrap.Modal('#modalDialogInfo', {
+let informDialogHandler = function (text, callback, alter) {
+    let informDialog = new bootstrap.Modal('#modalDialogInfo', {
         backdrop: 'static',
         keyboard: false
     });
-    alertDialog.hide()
+    informDialog.hide();
     if (alter) $('#escape').css('display', 'none');
     $("#forContentInfo").text(text);
     $("#modalInfoButton").on('click', function () {
         $("#modalInfoButton").unbind( "click" );
-        alertDialog.hide();
+        informDialog.hide();
         inviteDialog.hide();
         callback();
         $('#modalDialogInfo').modal('hide');
         $('#escape').css('display', 'inline');
     });
-    alertDialog.show();
+    informDialog.show();
 }
 let inviteDialog = new bootstrap.Modal('#modalDialogInvite', {
     backdrop: 'static',
@@ -225,7 +225,7 @@ let inviteDialog = new bootstrap.Modal('#modalDialogInvite', {
 
 
 //звуковые эффекты
-function bomb_explode() {
+function bombExplode() {
     let audio = new Audio('/js/ship_down.mp3');
     audio.play().then(r => {});
 }
