@@ -6,8 +6,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -113,10 +116,11 @@ public class HomeController {
 
 
     //Свомп контроллеры для передачи игровой инфорамации
-    @MessageMapping("/infoExchange")
-    public void handleSubscription(String message) {
+    @RabbitListener(queues = "infoExchange")
+    public void handleSubscription(Message<String> message) {
+        String payload = message.getPayload();
         try{
-            String[] names = message.split("&");
+            String[] names = payload.split("&");
             //Полчено приглашение
             if (names[0].equals("invite")) {
                 gameLogic.inviteOneAnother(names[1], names[2]);

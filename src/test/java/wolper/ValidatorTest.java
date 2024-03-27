@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import wolper.domain.GamerSet;
-import wolper.logic.EventMessenger;
+import wolper.events.EventMessenger;
 import wolper.logic.PlayerValidator;
 
 import java.lang.reflect.Constructor;

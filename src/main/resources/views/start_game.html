@@ -7,11 +7,7 @@
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
-    <script type="text/javascript" src="/js/controller.js"></script>
-    <script type="text/javascript" src="/js/main_js.js"></script>
     <script type="text/javascript" src="/js/ajax_and_stomp.js"></script>
-    <script type="text/javascript" src="/js/model.js"></script>
-    <script type="text/javascript" src="/js/hot2vert.js"></script>
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <link rel="stylesheet" type="text/css" href="/js/style.css">
@@ -66,7 +62,7 @@
         </div>
         <div class="offset-md-1 px-3 mt-2 py-5">
             <! - Выход из программы >
-            <a onclick="goNextStep('toExit')" class="btn btn-danger" style="margin:10px" role="button">Выход</a>
+            <a onclick="window.goNextStep('toExit')" class="btn btn-danger" style="margin:10px" role="button">Выход</a>
         </div>
     </div>
 
@@ -92,15 +88,18 @@
 <! - Всегда окончание >
 <script type="text/javascript" src="/plugins/stomp.min.js"></script>
 <script type="text/javascript" src="/plugins/touchEmul.js"></script>
-<script type="text/javascript" src="/js/game_workflow.js"></script>
 
 
 <! - Детект мобилок и настройка для айфони >
-<script type="text/javascript">
+<script type="module">
+    import { adaptSize } from '/js/utils.js';
+    import { initWebsocket, preventMultiEntrance, sendJSONtoServer, goNextStep } from '/js/controller.js';
     $(document).ready(function () {
-        change();
-        initMamaSTOMP();
+        adaptSize();
+        initWebsocket();
         preventMultiEntrance();
+        window.sendJSONtoServer = sendJSONtoServer;
+        window.goNextStep = goNextStep;
     });
 </script>
 <! - конец окончания и нстроек >

@@ -1,4 +1,7 @@
+//МОДЕЛЬ КОРАБЛЕЙ
 
+
+export {Model, initModel, cellObject, positioN}
 
 //КОНСТАНТЫ
 let statuS = {
@@ -21,16 +24,20 @@ let idStart=0;
 
 
 
-//Объект - адаптер для описания ячейки 
+//Объект - адаптер для описания ячейки
 let cellObject = {
     x: 1,
     y: 1,
     toId: function () {
+        let xn;
+        let yn;
         if (this.x == 10) xn = 0; else xn = this.x;
         if (this.y == 10) yn = 0; else yn = this.y;
         return xn + "and" + yn;
     },
     toIdPartner: function () {
+        let xn;
+        let yn;
         if (this.x == 10) xn = 0; else xn = this.x;
         if (this.y == 10) yn = 0; else yn = this.y;
         return xn + "pls" + yn;
@@ -69,7 +76,7 @@ function initModel() {
         this.poseShip = function (startY, startX, position, sizE, myId) {
                 if (position == positioN.VERT) {
                     setNeigbours(startX, startY, positioN.VERT, sizE);
-                    for (i = 0; i < sizE; i++) {
+                    for (let i = 0; i < sizE; i++) {
                         self.ships[startX - 1][startY - 1 + i].pos = positioN.VERT;
                         self.ships[startX - 1][startY - 1 + i].staT = statuS.ALIFE;
                         self.ships[startX - 1][startY - 1 + i].siZe = sizE;
@@ -139,8 +146,8 @@ function initModel() {
 
 
         function lookaround(x, y, id) {
-            for (i=-1; i<2; i++)
-                for(j=-1; j<2; j++) {
+            for (let i=-1; i<2; i++)
+                for(let j=-1; j<2; j++) {
                     let xx=x+i;
                     let yy=y+j;
                     if ((xx>-1)&&(xx<10))
@@ -282,7 +289,7 @@ function initModel() {
             let poS=self.ships[startX - 1][startY - 1].pos;
             let shipID=self.ships[startX - 1][startY - 1].shipID;
             if (poS == positioN.VERT) {
-                for (i = 0; i < lenGH; i++) {
+                for (let i = 0; i < lenGH; i++) {
                     self.ships[startX - 1][startY - 1+i].staT=statuS.FREE;
                     self.ships[startX - 1][startY - 1+i].siZe=4;
                     self.ships[startX - 1][startY - 1+i].id=0;

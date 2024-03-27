@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import wolper.dao.GameDao;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
+import wolper.events.EventMessenger;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -96,12 +97,12 @@ public class GameLogic {
         GamerSet updatedFrom = Optional.ofNullable(gamerFrom)
                 .map(GamerSet::withAddRating).orElse(null);
         GamerSet updatedTo = Optional.ofNullable(gamerTo)
-                .map(GamerSet::withAddRating).orElse(null);
+                .map(GamerSet::withUntouchedRating).orElse(null);
 
         if (playerValidator.ifAnyIsNull(gamerFrom, gamerTo, updatedFrom, updatedTo)) return;
 
         if (gameDao.tryUpdateGamersAtomically(gamerFrom, gamerTo, updatedFrom, updatedTo)) {
-            eventMessenger.listOfPlayersChangedEvent();
+            eventMessenger.listOfPlayersChangedEvent(gameDao.getAllGamersNames());
         }
     }
 
@@ -122,7 +123,7 @@ public class GameLogic {
         GamerSet inviteeUpdated = GamerSet.makePlayingWith(invitee, from);
 
         if (gameDao.tryUpdateGamersAtomically(inviter, invitee,  inviterUpdated, inviteeUpdated)) {
-            eventMessenger.listOfPlayersChangedEvent();
+            eventMessenger.listOfPlayersChangedEvent(gameDao.getAllGamersNames());
             return true;
         }
         else return false;

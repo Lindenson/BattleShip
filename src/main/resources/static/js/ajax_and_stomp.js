@@ -1,4 +1,3 @@
-
 //ВСЕ ДЛЯ СТОМПА И АЯКСА
 
 function initSTOMP(urlToGo) {
@@ -34,13 +33,13 @@ function initSTOMP(urlToGo) {
 
     //Коннект и реконнект с настройкой опций
     function connect() {
-        let token = $("meta[name='_csrf']").attr("content");
-        let header = $("meta[name='_csrf_header']").attr("content");
-        let headers = {}; headers[header] = token;
         initSTOMP.client = new StompJs.Client({
             brokerURL: initSTOMP.url,
             debug: onDebug,
-            connectHeaders: headers,
+            connectHeaders: {
+                login: 'sb',
+                passcode: 'sb',
+            },
             reconnectDelay: 5000,
             heartbeatIncoming: 10000,
             heartbeatOutgoing: 10000,

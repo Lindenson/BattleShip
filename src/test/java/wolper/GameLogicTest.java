@@ -5,12 +5,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.boot.test.context.SpringBootTest;
+import wolper.dao.GameInMemoryDaoImpl;
 import wolper.domain.BoardOfShips;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
 import wolper.dao.GameDao;
 import wolper.logic.GameLogic;
-import wolper.logic.EventMessenger;
+import wolper.events.EventMessenger;
 import wolper.logic.PlayerValidator;
 import wolper.logic.ShipMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +25,7 @@ class GameLogicTest {
     @Mock
     PlayerValidator playerValidator;
     @Mock
-    GameDao gameDao;
+    GameInMemoryDaoImpl gameDao;
     @Mock
     ShipMapper shipMapper;
     @Mock

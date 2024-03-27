@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import wolper.logic.EventMessenger;
+import wolper.events.EventMessenger;
 
 import java.util.ArrayList;
 import java.util.HashSet;

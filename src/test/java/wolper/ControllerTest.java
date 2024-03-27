@@ -52,12 +52,6 @@ class ControllerTest {
                 .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login"));
     }
 
-    @Test
-    @WithMockUser
-    public void authorizedStomp() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders.get("/data")).andDo(print())
-                .andExpect(MockMvcResultMatchers.content().string("Can \"Upgrade\" only to \"WebSocket\"."));
-    }
 
     @Test
     @WithMockUser
