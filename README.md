@@ -26,7 +26,7 @@
 
 [My article on Habr](https://habr.com/ru/post/346296)
 
-## Environment (docker-composer):
+## Environment (docker-compose.yaml):
 ```
 version: '3.7'
 services:
