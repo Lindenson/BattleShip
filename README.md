@@ -24,6 +24,11 @@
 - RabbitMQ (two releases with/without it)
 - Logback
 - Docker
+- Unit Test
+- Mockito
+- Component test
+- Coverage check (jacoco, PiiTest)
+
 
 
 ## Resourses:
