@@ -3,6 +3,7 @@
 <img src="./fight.png" width=200/>
 
 ![coverage](https://img.shields.io/badge/coverage-75%25-green)
+![RabbitMQ](https://img.shields.io/badge/Rabbitmq-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
 
 
 ## A case study: 
