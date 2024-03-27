@@ -280,8 +280,8 @@
             <div class="row">
                 <div class="mx-4 mt-3">
                 <!  - Выход из программы     >
-                    <a th:attr="onclick=|goNextStep('toExit')|"  class="btn btn-danger mr-2" role="button">Выход</a>
-                    <button id="gofuther" onclick="sendJSONtoServer()" style="visibility: hidden" class="btn btn-success" type="button">Вперед</button>
+                    <a th:attr="onclick=|window.goNextStep('toExit')|"  class="btn btn-danger mr-2" role="button">Выход</a>
+                    <button id="gofuther" onclick="window.sendJSONtoServer()" style="visibility: hidden" class="btn btn-success" type="button">Вперед</button>
                 </div>
             </div>
 </div>

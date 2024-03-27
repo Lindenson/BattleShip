@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import wolper.domain.GamerSet;
+import wolper.events.EventMessenger;
 
 import java.util.Objects;
 

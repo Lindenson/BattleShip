@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import wolper.dao.UserDao;
+import wolper.dao.UserDaoImpl;
 import wolper.domain.Gamer;
 import wolper.domain.LogicException;
 
@@ -30,7 +31,7 @@ public class UserDaoTest {
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    UserDao userDao;
+    UserDaoImpl userDao;
 
 
     @Test

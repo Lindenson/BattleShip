@@ -32,11 +32,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.security:spring-security-messaging'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.webflow:spring-webflow:3.0.0'
-    compileOnly 'org.projectlombok:lombok:1.18.28'
-    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+    implementation 'io.projectreactor.netty:reactor-netty:1.1.17'
     implementation'mysql:mysql-connector-java:8.0.33'
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+
+
+    compileOnly 'org.projectlombok:lombok:1.18.28'
+    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'

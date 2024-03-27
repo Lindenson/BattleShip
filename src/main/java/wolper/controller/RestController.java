@@ -27,7 +27,6 @@ public class RestController {
         public final GameDao gameDao;
         public final ShipMapper shipMapper;
         public final GameLogic crossGamerInfoBuss;
-        public final SimpMessageSendingOperations messaging;
 
 
         //Контроллер сохранения расстановки кораблей

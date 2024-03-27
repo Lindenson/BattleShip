@@ -13,7 +13,7 @@ import wolper.domain.BoardOfShips;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
 import wolper.dao.GameDao;
-import wolper.logic.EventMessenger;
+import wolper.events.EventMessenger;
 import wolper.logic.GameLogic;
 import wolper.logic.PlayerValidator;
 import wolper.logic.ShipMapper;

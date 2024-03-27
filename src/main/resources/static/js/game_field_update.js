@@ -1,8 +1,17 @@
+//ОБНОВЛЕНИЕ ИГВОГО ПОЛЯ В ХОДЕ ИГРЫ
 
+import {yourMove, myName, setPageHeader} from '/js/utils.js'
 
-//УПРАВЛЕНИЕ СУДАМИ
+import {cellObject} from '/js/model.js'
+
+import { myState } from "./set_and_state.js";
+
+import { goNextStep } from '/js/controller.js'
+
+export { initFightModel, informDialogHandler, inviteDialog, hitMe }
 
 //Инициация игровой модели соперника
+
 function initFightModel() {
     $('.tohit').on('click', function() {
         if ($(this).hasClass('hit')) return;
@@ -14,50 +23,50 @@ function initFightModel() {
 
 function sendMyNextStep(cell){
         cellObject.fromId(cell);
-        const url_to_send = "/rest/move/" + myName() + "/" + yourPartner;
+        const url_to_send = "/rest/move/" + myName() + "/" + myState.playingWith;
         const data_to_sent = {x: cellObject.x, y: cellObject.y};
         const step_data = JSON.stringify(data_to_sent);
-        yourStep=false;
+        myState.yourStep=false;
         setPageHeader('.......');
         //Отправка на сервер хода!
         sendAJAXpost (url_to_send, step_data, function (x) {
             switch (x[0]) {
                 case "zero" :
-                    yourStep=false;
-                    setPageHeader('Ходит '+yourPartner+'....');
+                    myState.yourStep=false;
+                    setPageHeader('Ходит '+myState.playingWith+'....');
                     break;
                 case "injured" :
                     $('#'+cellObject.toIdPartner()).addClass('injured');
-                    yourStep=true;
+                    myState.yourStep=true;
                     setPageHeader('Ходите Вы....');
                     break;
                 case "killed" :
                     $('#'+cellObject.toIdPartner()).addClass('killed');
                     showKill(cellObject.x, cellObject.y);
-                    yourStep=true;
+                    myState.yourStep=true;
                     setPageHeader('Ходите Вы....');
                     bombExplode();
                     break;
                 case "victory" :
                     $('#'+cellObject.toIdPartner()).addClass('killed');
                     showKill(cellObject.x, cellObject.y);
-                    yourStep=false;
+                    myState.yourStep=false;
                     setPageHeader('Вы победили!');
                     informDialogHandler("Поздравляем Вас с победой!",
                         function () {goNextStep("restartGame");}, true);
                     break;
                 case "error" :
-                    yourStep=false;
+                    myState.yourStep=false;
                     setPageHeader('Ошибка!');
                     informDialogHandler(x[1], ()=> goNextStep("restartGame"), true);
                     break;
                 default :
-                    yourStep=true;
+                    myState.yourStep=true;
                     setPageHeader('Ходите Вы.... (прошлый ход не принят из-за проблем с сетью!)');
             }},
             function () {},
             function (jqXHR, textStatus, errorThrown) {
-                yourStep = true;
+                myState.yourStep = true;
                 setPageHeader('Ходите Вы.... (повторите, произошел сбой при отправке на сервер!)');
                 console.log("Ошибка отправки данных на сервер по причине "+errorThrown);
                 $('#'+cell).removeClass("hit");
@@ -75,24 +84,24 @@ function hitMe(x, y, result) {
     switch (result) {
         case "zero" :
             $('#'+cellObject.toId()).addClass('zerohit');
-            yourStep=true;
+            myState.yourStep=true;
             setPageHeader('Ходите Вы....');
             break;
         case "injured" :
             $('#'+cellObject.toId()).addClass('injured');
-            yourStep=false;
-            setPageHeader('Ходит '+yourPartner+'....');
+            myState.yourStep=false;
+            setPageHeader('Ходит '+myState.playingWith+'....');
             break;
         case "killed" :
             $('#'+cellObject.toId()).addClass('killed');
             showKillMe(cellObject.x, cellObject.y);
-            yourStep=false;
-            setPageHeader('Ходит '+yourPartner+'....');
+            myState.yourStep=false;
+            setPageHeader('Ходит '+myState.playingWith+'....');
             bombExplode();
             break;
         case "defeated" :
             $('#'+cellObject.toId()).addClass('killed');
-            yourStep=false;
+            myState.yourStep=false;
             setPageHeader('Вы проиграли!');
             informDialogHandler("Вы проиграли! Удачи в следующей игре...",
                 function () {goNextStep("restartGame");}, true);
