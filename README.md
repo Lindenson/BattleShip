@@ -50,8 +50,8 @@ services:
       - "15674:15674"
       - "61613:61613"
     environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_USER: sb
+      RABBITMQ_DEFAULT_PASS: sb
     command: ["rabbitmq-plugins", "enable", "rabbitmq_web_stomp", "rabbitmq_stomp"]
 
 volumes:
