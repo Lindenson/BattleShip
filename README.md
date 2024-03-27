@@ -13,13 +13,17 @@
 - Java
 - Spring 
 - Spring Security
-- REST
+- Rest
+- Websocket/STOMP
 - Webflow
 - Thymeleaf
-- Websocket/STOMP
 - JS
 - JQuery
 - Bootstrap
+- MySql
+- RabbitMq
+- Logback
+- Docker
 
 
 ## Resourses:
