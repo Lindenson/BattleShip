@@ -21,7 +21,7 @@
 - JQuery
 - Bootstrap
 - MySql
-- RabbitMq
+- RabbitMQ (two releases with/without it)
 - Logback
 - Docker
 
