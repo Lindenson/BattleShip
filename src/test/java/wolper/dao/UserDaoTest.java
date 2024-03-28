@@ -1,14 +1,14 @@
-package wolper;
+package wolper.dao;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import wolper.application.BattleShip;
 import wolper.persistence.database.UserDaoImpl;
 import wolper.domain.Gamer;
 import wolper.domain.LogicException;
@@ -21,7 +21,7 @@ import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = BattleShip.class)
+@ExtendWith(MockitoExtension.class)
 public class UserDaoTest {
 
     @Mock

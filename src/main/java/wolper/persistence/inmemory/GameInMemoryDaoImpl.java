@@ -2,6 +2,7 @@ package wolper.persistence.inmemory;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 
+@Slf4j
 @Service("gameDao")
 @RequiredArgsConstructor
 public class GameInMemoryDaoImpl implements GameDao {
@@ -69,16 +71,26 @@ public class GameInMemoryDaoImpl implements GameDao {
     @Override
     public boolean tryUpdateGamersAtomically(@NonNull GamerSet beforeA, @NonNull GamerSet beforeB,
                                              @NonNull GamerSet afterA, @NonNull GamerSet afterB) {
-        synchronized (this) {
-            GamerSet beforeGamerA = getGamerByName(beforeA.getName());
-            GamerSet beforeGamerB = getGamerByName(beforeB.getName());
 
-            if (Objects.isNull(beforeGamerA) || Objects.isNull(beforeGamerB)) return false;
-            if (!(beforeGamerA.equals(beforeA) && beforeGamerB.equals(beforeB))) return false;
+        String nameA = beforeA.getName();
+        String nameB = beforeB.getName();
+        if (nameA.equals(nameB)) {
+            log.error("should not be same names for players");
+            return false;
+        }
+        Object lock = (nameA.compareTo(nameB) > 0)? beforeA: beforeB;
 
-            updateGamer(afterA);
-            updateGamer(afterB);
-            return true;
+        //locking on smallest object, should not be a bottleneck
+        synchronized (lock) {
+                GamerSet beforeGamerA = getGamerByName(beforeA.getName());
+                GamerSet beforeGamerB = getGamerByName(beforeB.getName());
+
+                if (Objects.isNull(beforeGamerA) || Objects.isNull(beforeGamerB)) return false;
+                if (!(beforeGamerA.equals(beforeA) && beforeGamerB.equals(beforeB))) return false;
+
+                updateGamer(afterA);
+                updateGamer(afterB);
+                return true;
         }
     }
 

@@ -1,9 +1,11 @@
-package wolper;
+package wolper.game;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import wolper.application.BattleShip;
 import wolper.domain.GamerSet;
@@ -15,7 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = BattleShip.class)
+@ExtendWith(MockitoExtension.class)
 public class ValidatorTest {
 
     private GamerSet testGamer;

@@ -86,7 +86,7 @@ jacocoTestReport {
                     exclude: ['wolper/application/*',
                               'wolper/messaging/*',
                               'wolper/web/home/*',
-                              'wolper/persistence/inmemory/*'])
+                              'wolper/domain/*'])
         })
     }
     finalizedBy copyJacocoReport

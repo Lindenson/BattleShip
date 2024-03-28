@@ -1,12 +1,14 @@
-package wolper;
+package wolper.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 import wolper.application.BattleShip;
@@ -27,7 +29,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
 //для одного теста, так как мы мокируем статические методы
-@SpringBootTest(classes = BattleShip.class)
+@ExtendWith(MockitoExtension.class)
 class GameOverTest {
 
     @Mock
@@ -61,8 +63,6 @@ class GameOverTest {
         GamerSet daughter = mock(GamerSet.class);
         when(daughter.getName()).thenReturn("daughter");
         when(daughter.ifKilledEnough()).thenReturn(true);
-        when(daughter.getPartner()).thenReturn("mama");
-        when(daughter.isFree()).thenReturn(false);
 
         mockStatic(GamerSet.class);
         when(GamerSet.addKilled(any())).thenReturn(daughter);

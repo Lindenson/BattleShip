@@ -1,4 +1,4 @@
-package wolper;
+package wolper.web;
 
 
 import org.junit.jupiter.api.Test;
@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import wolper.app.TestConfig;
 import wolper.domain.ShipList;
 import wolper.game.GameLogic;
 import wolper.game.PlayerValidator;
