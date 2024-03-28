@@ -8,7 +8,7 @@
 ![RabbitMQ](https://img.shields.io/badge/Rabbitmq-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 </br>
-![coverage](https://img.shields.io/badge/coverage-72%28-green)
+![Coverage](.github/badges/jacoco.svg)
 
 
 ## A case study: 

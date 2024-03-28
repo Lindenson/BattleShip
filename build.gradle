@@ -48,9 +48,9 @@ dependencies {
 }
 
 task copyJacocoReport(type: Copy) {
-    from layout.buildDirectory.dir("jacocoHtml")
+    from layout.buildDirectory.dir("jacocoCsv")
     into layout.projectDirectory.dir("src/main/java/wolper/coverage/jacoco")
-    include '*'
+    include '*.*'
 }
 
 test {
@@ -64,7 +64,7 @@ test {
 
 pitest {
     targetClasses = ['wolper.**.*']
-    excludedClasses = ['wolper.security.**.*', 'wolper.config.**.*']
+    excludedClasses = ['wolper.application.**.*', 'wolper.messaging.**.*', 'persistence.inmemory.**.*']
     junit5PluginVersion = '1.2.1'
     pitestVersion = '1.15.2'
     threads = 10
@@ -77,6 +77,7 @@ jacocoTestReport {
     reports {
             xml.required = false
             csv.required = true
+            csv.outputLocation = layout.buildDirectory.file('jacocoCsv/jacoco.scv')
             html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
     }
     afterEvaluate {
