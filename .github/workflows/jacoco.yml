@@ -23,4 +23,5 @@ jobs:
       with:
         generate-branches-badge: true
         jacoco-csv-file: "**/jacoco.csv"
+        badges-directory: .github/badges
    
