@@ -16,7 +16,6 @@ public class ShipList {
 
     @ToString
     public static class SmallSip {
-
         public SmallSip(int size, EnumSet<Checks> checkSet) {
             this.size = size;
             this.checkSet = Collections.unmodifiableSet(checkSet);

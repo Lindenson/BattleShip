@@ -1,4 +1,4 @@
-package wolper.logic;
+package wolper.game;
 
 
 import lombok.NonNull;

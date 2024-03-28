@@ -1,4 +1,4 @@
-package wolper.events;
+package wolper.messaging;
 
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;

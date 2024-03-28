@@ -1,4 +1,4 @@
-package wolper.dao;
+package wolper.persistence.inmemory;
 
 import lombok.NonNull;
 import wolper.domain.GamerSet;

@@ -1,4 +1,4 @@
-package wolper.dao;
+package wolper.persistence.database;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import wolper.domain.Gamer;
 import wolper.domain.LogicException;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 @Slf4j
 @Repository
+@EnableTransactionManagement
 public class UserDaoImpl implements UserDao {
 
     public UserDaoImpl(NamedParameterJdbcTemplate template, PasswordEncoder passwordEncoder) {

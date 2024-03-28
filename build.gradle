@@ -38,7 +38,6 @@ dependencies {
     implementation'mysql:mysql-connector-java:8.0.33'
     runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
 
-
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
 
@@ -48,7 +47,11 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-
+task copyJacocoReport(type: Copy) {
+    from layout.buildDirectory.dir("jacocoHtml")
+    into layout.projectDirectory.dir("src/main/java/wolper/coverage/jacoco")
+    include '*'
+}
 
 test {
     useJUnitPlatform()
@@ -58,7 +61,6 @@ test {
     }
     finalizedBy jacocoTestReport
 }
-
 
 pitest {
     targetClasses = ['wolper.**.*']
@@ -74,16 +76,23 @@ jacocoTestReport {
     dependsOn test
     reports {
             xml.required = false
-            csv.required = false
+            csv.required = true
             html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
     }
     afterEvaluate {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it,
-                    exclude: ['wolper/domain/*',
-                              'wolper/security/*',
-                              'wolper/logic/EventMessenger.class'])
+                    exclude: ['wolper/application/*',
+                              'wolper/messaging/*',
+                              'wolper/web/home/*',
+                              'wolper/persistence/inmemory/*'])
         })
     }
+    finalizedBy copyJacocoReport
 }
+
+
+
+
+
 

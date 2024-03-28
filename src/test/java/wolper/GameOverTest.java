@@ -9,14 +9,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
+import wolper.application.BattleShip;
 import wolper.domain.BoardOfShips;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
-import wolper.dao.GameDao;
-import wolper.events.EventMessenger;
-import wolper.logic.GameLogic;
-import wolper.logic.PlayerValidator;
-import wolper.logic.ShipMapper;
+import wolper.persistence.inmemory.GameDao;
+import wolper.messaging.EventMessenger;
+import wolper.game.GameLogic;
+import wolper.game.PlayerValidator;
+import wolper.game.ShipMapper;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
 //для одного теста, так как мы мокируем статические методы
-@SpringBootTest
+@SpringBootTest(classes = BattleShip.class)
 class GameOverTest {
 
     @Mock

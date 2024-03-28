@@ -1,4 +1,4 @@
-package wolper.security;
+package wolper.application.security;
 
 
 import jakarta.servlet.http.HttpSessionEvent;
@@ -8,7 +8,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.stereotype.Component;
-import wolper.dao.GameDao;
+import wolper.persistence.inmemory.GameDao;
 
 
 @Component

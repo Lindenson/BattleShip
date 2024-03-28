@@ -8,8 +8,8 @@ import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import wolper.dao.UserDao;
-import wolper.dao.UserDaoImpl;
+import wolper.application.BattleShip;
+import wolper.persistence.database.UserDaoImpl;
 import wolper.domain.Gamer;
 import wolper.domain.LogicException;
 
@@ -21,7 +21,7 @@ import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@SpringBootTest(classes = BattleShip.class)
 public class UserDaoTest {
 
     @Mock

@@ -1,11 +1,12 @@
-package wolper.dao;
+package wolper.persistence.inmemory;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
-import wolper.events.EventMessenger;
+import wolper.messaging.EventMessenger;
+import wolper.persistence.database.UserDao;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

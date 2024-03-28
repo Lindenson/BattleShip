@@ -1,4 +1,4 @@
-package wolper.controller;
+package wolper.web.home;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,19 +9,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import wolper.dao.GameDao;
-import wolper.dao.UserDao;
+import wolper.persistence.inmemory.GameDao;
+import wolper.persistence.database.UserDao;
 import wolper.domain.Gamer;
 import wolper.domain.LogicException;
-import wolper.logic.*;
-import wolper.security.SessionService;
+import wolper.game.*;
+import wolper.application.security.SessionService;
 
 import java.util.Objects;
 

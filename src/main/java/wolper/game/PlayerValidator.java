@@ -1,11 +1,11 @@
-package wolper.logic;
+package wolper.game;
 
 import jakarta.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import wolper.domain.GamerSet;
-import wolper.events.EventMessenger;
+import wolper.messaging.EventMessenger;
 
 import java.util.Objects;
 

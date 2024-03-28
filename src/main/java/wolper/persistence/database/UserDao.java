@@ -1,4 +1,4 @@
-package wolper.dao;
+package wolper.persistence.database;
 
 import org.springframework.transaction.annotation.Transactional;
 import wolper.domain.Gamer;

@@ -1,17 +1,16 @@
-package wolper.controller;
+package wolper.web;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import wolper.dao.GameDao;
+import wolper.persistence.inmemory.GameDao;
 import wolper.domain.BoardOfShips;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
 import wolper.domain.StepsMe;
-import wolper.logic.*;
+import wolper.game.*;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Objects;

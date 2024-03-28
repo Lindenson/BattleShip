@@ -5,21 +5,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.boot.test.context.SpringBootTest;
-import wolper.dao.GameInMemoryDaoImpl;
+import wolper.application.BattleShip;
+import wolper.persistence.inmemory.GameInMemoryDaoImpl;
 import wolper.domain.BoardOfShips;
 import wolper.domain.GamerSet;
 import wolper.domain.ShipList;
-import wolper.dao.GameDao;
-import wolper.logic.GameLogic;
-import wolper.events.EventMessenger;
-import wolper.logic.PlayerValidator;
-import wolper.logic.ShipMapper;
+import wolper.game.GameLogic;
+import wolper.messaging.EventMessenger;
+import wolper.game.PlayerValidator;
+import wolper.game.ShipMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@SpringBootTest(classes = BattleShip.class)
 class GameLogicTest {
 
     @Mock

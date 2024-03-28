@@ -5,16 +5,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import wolper.application.BattleShip;
 import wolper.domain.GamerSet;
-import wolper.events.EventMessenger;
-import wolper.logic.PlayerValidator;
+import wolper.messaging.EventMessenger;
+import wolper.game.PlayerValidator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(classes = BattleShip.class)
 public class ValidatorTest {
 
     private GamerSet testGamer;

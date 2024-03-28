@@ -1,4 +1,4 @@
-package wolper.config;
+package wolper.application.config;
 
 
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import wolper.security.SecurityErrorHandler;
+import wolper.application.security.SecurityErrorHandler;
 import javax.sql.DataSource;
 
 

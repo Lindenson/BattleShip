@@ -2,21 +2,58 @@ package wolper;
 
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import wolper.domain.ShipList;
+import wolper.game.GameLogic;
+import wolper.game.PlayerValidator;
+import wolper.messaging.EventMessengerImpl;
+import wolper.persistence.database.UserDaoImpl;
+import wolper.persistence.inmemory.GameInMemoryDaoImpl;
 
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest
+@ContextConfiguration(classes = {TestConfig.class})
 class ControllerTest {
+    public static final String SHIP_UPDATE = "{\"shipLines\" : [[{\"x\" : 5, \"y\" : 5, \"staT\" : 1, \"pos\" : 1, \"siZe\" : 3, \"commonGranz\" : 0, \"id\" : 1}]]}";
+    public static final String SHIP_LIST = "{\"smallSipList\":[{\"checkSet\":[\"A1\",\"B1\",\"C1\"]}]}";
+
+    @MockBean(name = "users")
+    UserDaoImpl userDao;
+
+    @MockBean(name = "gameDao")
+    GameInMemoryDaoImpl gameInMemoryDao;
+
+    @MockBean
+    GameLogic gameLogic;
+
+    @MockBean
+    PlayerValidator playerValidator;
+
+    @MockBean
+    RabbitTemplate rabbitTemplate;
+
+    @MockBean(name = "messenger")
+    EventMessengerImpl eventMessenger;
+
+    @Captor
+    ArgumentCaptor<ShipList> shipListArgumentCaptor;
 
     @Autowired
     private MockMvc mockMvc;
@@ -102,10 +139,10 @@ class ControllerTest {
     public void authorizedUpdate() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/rest/update/mama")
                         .contentType("application/json")
-                        .content("{\"shipLines\" : [[{\"x\" : 5, \"y\" : 5, \"staT\" : 1, \"pos\" : 1, \"siZe\" : 3, \"commonGranz\" : 0, \"id\" : 1}]]}")
+                        .content(SHIP_UPDATE)
                         .with(csrf()))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.content().json("{\"smallSipList\":[{\"checkSet\":[\"A1\",\"B1\",\"C1\"]}]}"));
+                .andExpect(MockMvcResultMatchers.content().json(SHIP_LIST));
     }
 
     @Test
@@ -122,13 +159,18 @@ class ControllerTest {
     public void authorizedSaveAndFetch() throws Exception {
         this.mockMvc.perform(MockMvcRequestBuilders.post("/rest/update/mama")
                         .contentType("application/json")
-                        .content("{\"shipLines\" : [[{\"x\" : 5, \"y\" : 5, \"staT\" : 1, \"pos\" : 1, \"siZe\" : 3, \"commonGranz\" : 0, \"id\" : 1}]]}")
+                        .content(SHIP_UPDATE)
                         .with(csrf()))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.content().json("{\"smallSipList\":[{\"checkSet\":[\"A1\",\"B1\",\"C1\"]}]}"));
+                .andExpect(MockMvcResultMatchers.content().json(SHIP_LIST));
+
+        verify(gameInMemoryDao).updateShipListByName(any(), shipListArgumentCaptor.capture());
+        ShipList shipList = shipListArgumentCaptor.getValue();
+        when(gameInMemoryDao.getShipListByName(any())).thenReturn(shipList);
+
         this.mockMvc.perform(MockMvcRequestBuilders.post("/rest/update/mama")
                         .with(csrf()))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.content().json("{\"smallSipList\":[{\"checkSet\":[\"A1\",\"B1\",\"C1\"]}]}"));
+                .andExpect(MockMvcResultMatchers.content().json(SHIP_LIST));
     }
 }

@@ -1,4 +1,4 @@
-package wolper.config;
+package wolper.messaging.config;
 
 
 import org.springframework.amqp.core.*;
