@@ -1,0 +1,3 @@
+              - name: jacoco-badge-generator
+                uses: cicirello/jacoco-badge-generator@v2.11.0
+            
