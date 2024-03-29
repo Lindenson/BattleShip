@@ -244,16 +244,6 @@ function inviteShowDialog(inviter) {
     }
 }
 
-function unbindAndCloseInviteDialog() {
-    myState.invited = '';
-    clearTimeout(invitationCallback);
-    let modDialog = $('#modalDialogInvite')
-    modDialog.find("#acceptInviteButton").unbind('click');
-    modDialog.find("#rejectInviteButton").unbind('click');
-    inviteDialog.hide();
-}
-
-
 // СОБЫТИЯ
 
 //Переход по вебФлоу по событию
@@ -336,15 +326,6 @@ let handleInfoExchange = function (incoming) {
     }
 };
 
-function preventMultiEntrance() {
-    const alreadyPlaying = $('#forAlreadyPlaying').text();
-    if (alreadyPlaying === 'true') {
-        informDialogHandler("Вы повторно вошли в игру в том же браузере, из-за этого прошлая " +
-            "игра (в другом окне) будет прекращена?", () => goNextStep('toExit'))
-    }
-
-}
-
 function clearInviteAfterTimeout() {
     return setTimeout(() => {
         if (myState.free && myState.invited !== '') {
@@ -354,4 +335,22 @@ function clearInviteAfterTimeout() {
             unbindAndCloseInviteDialog();
         }
     }, invitationTimeOut);
+}
+
+function unbindAndCloseInviteDialog() {
+    myState.invited = '';
+    clearTimeout(invitationCallback);
+    let modDialog = $('#modalDialogInvite')
+    modDialog.find("#acceptInviteButton").unbind('click');
+    modDialog.find("#rejectInviteButton").unbind('click');
+    inviteDialog.hide();
+}
+
+function preventMultiEntrance() {
+    const alreadyPlaying = $('#forAlreadyPlaying').text();
+    if (alreadyPlaying === 'true') {
+        informDialogHandler("Вы повторно вошли в игру в том же браузере, из-за этого прошлая " +
+            "игра (в другом окне) будет прекращена?", () => goNextStep('toExit'))
+    }
+
 }
