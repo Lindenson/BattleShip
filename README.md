@@ -44,7 +44,7 @@
 
 [My article on Habr](https://habr.com/ru/post/346296)
 
-## Environment (docker-compose.yaml):
+## Environment basic (docker-compose.yaml and Dockerfile):
 ```
 version: '3.7'
 services:
@@ -52,7 +52,7 @@ services:
     image: mysql:latest
     container_name: some-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: bolt
+      MYSQL_ROOT_PASSWORD: user_pass
     ports:
       - "3306:3306"
     volumes:
@@ -68,11 +68,37 @@ services:
       - "15674:15674"
       - "61613:61613"
     environment:
-      RABBITMQ_DEFAULT_USER: sb
-      RABBITMQ_DEFAULT_PASS: sb
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: user_pass
     command: ["rabbitmq-plugins", "enable", "rabbitmq_web_stomp", "rabbitmq_stomp"]
+
+  java-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my-java-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/yes?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: user_pass
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: user
+      SPRING_RABBITMQ_PASSWORD: user_pass
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - "8080:8080"
 
 volumes:
   mysql-data:
+```
+
+```
+FROM openjdk:17-alpine
+WORKDIR /app
+COPY BattleShip-1.jar /app/BattleShip-1.jar
+CMD ["java", "-jar", "bf.jar"]
 ```
 
