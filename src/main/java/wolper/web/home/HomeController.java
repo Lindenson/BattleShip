@@ -1,5 +1,6 @@
 package wolper.web.home;
 
+import com.rabbitmq.client.Channel;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -7,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Controller;
@@ -20,6 +22,7 @@ import wolper.domain.Gamer;
 import wolper.domain.LogicException;
 import wolper.game.*;
 import wolper.application.security.SessionService;
+import org.springframework.messaging.handler.annotation.Header;
 
 import java.util.Objects;
 
@@ -114,8 +117,9 @@ public class HomeController {
 
 
     //Свомп контроллеры для передачи игровой инфорамации
-    @RabbitListener(queues = "infoExchange")
-    public void handleSubscription(Message<String> message) {
+    @RabbitListener(queues = "infoExchange", ackMode = "MANUAL")
+    public void handleSubscription(Message<String> message, Channel channel,
+                                   @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
         String payload = message.getPayload();
         try{
             String[] names = payload.split("&");
@@ -123,6 +127,7 @@ public class HomeController {
             if (names[0].equals("invite")) {
                 gameLogic.inviteOneAnother(names[1], names[2]);
             }
+            channel.basicAck(tag, false);
         } catch (Exception e){
             log.error("wrong message format: {}", e.getMessage());
         }

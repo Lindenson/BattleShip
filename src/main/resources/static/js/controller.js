@@ -48,7 +48,7 @@ function initWebsocket() {
 
     //Подписка на webSocket
     initSTOMP.callback = function (frame) {
-        initSTOMP.client.subscribe("/topic/" + myName(), router, {'ack': 'client', 'durable': 'true'});
+        initSTOMP.client.subscribe("/topic/" + myName(), router, {'ack': 'client'});
         //И первая иницаилизация стартовой таблицы
         drawListGamersTable();
         $("body").css('cursor', 'default');
